@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 04 – Control Flow</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#16a34a;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;--primary:#2563eb;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+.pbar{background:#e2e8f0;}.pfill{height:6px;background:var(--accent);transition:width .35s;}
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:36px 60px;display:none;overflow-y:auto;flex-direction:column;justify-content:center;}
+.slide.active{display:flex;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.title-slide{text-align:center;align-items:center;}
+.big-icon{font-size:4.5em;margin-bottom:12px;}
+h1{font-size:2.4em;margin-bottom:10px;}h1 span{color:var(--accent);}
+h2{font-size:1.65em;margin-bottom:10px;color:var(--accent);}h3{font-size:1.15em;color:var(--accent);margin-bottom:6px;}
+p{line-height:1.75;margin-bottom:10px;}
+.subtitle{color:var(--muted);font-size:1.1em;}
+.bullets{list-style:none;margin:10px 0;}
+.bullets li{padding:7px 0 7px 28px;position:relative;line-height:1.6;}
+.bullets li::before{content:'▶';color:var(--accent);position:absolute;left:0;font-size:.7em;top:10px;}
+.bullets li b{color:var(--accent);}
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:12px 16px;border-radius:0 10px 10px 0;margin:10px 0;}
+.callout.info{border-color:var(--blue);background:rgba(100,181,246,.1);}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout.tip{border-color:#ce93d8;background:rgba(206,147,216,.1);}
+.callout strong{display:block;margin-bottom:3px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:10px 0;}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px 18px;font-family:'Cascadia Code','Consolas',monospace;font-size:.91em;white-space:pre;overflow-x:auto;margin:12px 0;line-height:1.65;color:#d4d4d4;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}
+.btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;}
+.btn-a{background:var(--accent);color:#000;}.btn-g{background:#e2e8f0;color:var(--text);}
+.demo-box{background:#f1f5f9;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:12px 0;}
+.demo-tb{background:#e2e8f0;padding:7px 14px;font-size:.84em;color:var(--muted);border-bottom:1px solid var(--border);}
+.demo-area{padding:12px 16px;font-family:'Cascadia Code',monospace;font-size:.88em;min-height:80px;line-height:1.7;color:var(--text);}
+.demo-out{padding:7px 16px;border-top:1px solid var(--border);color:#0d7a5f;font-size:.84em;min-height:28px;background:#e8f5f0;}
+.demo-ctrl{padding:7px 14px;background:#f8fafc;border-top:1px solid var(--border);display:flex;gap:8px;}
+.demo-box .kw{color:#0070c1;}.demo-box .str{color:#a31515;}.demo-box .com{color:#008000;}.demo-box .num{color:#098658;}.demo-box .func{color:#795e26;}.demo-box .type{color:#267f99;}
+/* Loop visualizer */
+.loop-vis{background:#f1f5f9;border:1.5px solid var(--border);border-radius:10px;padding:14px;margin:12px 0;}
+.loop-row{display:flex;gap:8px;align-items:center;margin:3px 0;}
+.loop-cell{padding:6px 14px;border-radius:4px;font-family:monospace;font-size:.88em;min-width:60px;text-align:center;transition:all .3s;border:1px solid transparent;}
+.loop-cell.current{background:rgba(255,143,0,.3);border-color:var(--accent);font-weight:bold;transform:scale(1.05);}
+.loop-cell.done{background:rgba(76,175,80,.15);border-color:rgba(76,175,80,.3);color:var(--green);}
+.loop-cell.waiting{background:#0d1117;border-color:#30363d;color:var(--muted);}
+.quiz-q{font-size:1.1em;font-weight:600;margin-bottom:10px;}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:9px 14px;margin:5px 0;cursor:pointer;transition:all .2s;font-size:.95em;}
+.quiz-opt:hover{border-color:var(--accent);}.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:9px 14px;border-radius:8px;margin-top:8px;font-size:.9em;}
+.feedback.ok{background:rgba(76,175,80,.12);border-left:3px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.12);border-left:3px solid var(--red);}
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;transition:all .2s;}
+.nav-btn:hover{background:#e2e8f0;color:var(--text);}.nav-btn:disabled{opacity:.3;cursor:default;}
+.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+#np{display:none;position:fixed;bottom:60px;right:16px;width:300px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+#np.show{display:block;}
+#np textarea{width:100%;height:110px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.85em;}
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+.show-answer-btn{display:inline-flex;align-items:center;gap:6px;margin:12px 0 4px;padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:.95em;font-weight:600;cursor:pointer;transition:background .2s;}
+.show-answer-btn:hover{background:#c96a00;}
+.show-answer-btn.revealed{background:var(--green);}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="badge">Module 04</div>
+  <span class="htitle">🔀 Control Flow</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">12</span> &nbsp;|&nbsp; ⏱ 40 min &nbsp;|&nbsp; 🟢 Beginner
+    <button class="btn btn-g" style="padding:4px 10px;font-size:.78em;margin-left:12px;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+<div class="scontainer">
+
+<!-- S1 -->
+<div class="slide title-slide active">
+  <div class="big-icon">🔀</div>
+  <h1>Control <span>Flow</span></h1>
+  <p class="subtitle">Make decisions and repeat actions — If/Then, Loops, and Select Case</p>
+</div>
+
+<!-- S2 If/Then -->
+<div class="slide">
+  <h2>If / Then / Else</h2>
+  <p>Make decisions in your code — run different code based on a condition:</p>
+  <div class="two-col">
+    <div>
+      <div class="code-block"><span class="com">' Basic If/Then</span>
+<span class="kw">If</span> score >= <span class="num">60</span> <span class="kw">Then</span>
+    <span class="func">MsgBox</span> <span class="str">"Pass!"</span>
+<span class="kw">End If</span>
+
+<span class="com">' If/Then/Else</span>
+<span class="kw">If</span> score >= <span class="num">60</span> <span class="kw">Then</span>
+    result = <span class="str">"Pass"</span>
+<span class="kw">Else</span>
+    result = <span class="str">"Fail"</span>
+<span class="kw">End If</span>
+
+<span class="com">' If/ElseIf/Else</span>
+<span class="kw">If</span> score >= <span class="num">90</span> <span class="kw">Then</span>
+    grade = <span class="str">"A"</span>
+<span class="kw">ElseIf</span> score >= <span class="num">80</span> <span class="kw">Then</span>
+    grade = <span class="str">"B"</span>
+<span class="kw">ElseIf</span> score >= <span class="num">70</span> <span class="kw">Then</span>
+    grade = <span class="str">"C"</span>
+<span class="kw">Else</span>
+    grade = <span class="str">"F"</span>
+<span class="kw">End If</span></div>
+    </div>
+    <div>
+      <div class="card"><h3>Comparison Operators</h3>
+        <table style="font-size:.88em;margin:6px 0;width:100%;border-collapse:collapse;">
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);font-family:monospace;color:var(--accent);">=</td><td style="padding:4px 8px;border:1px solid var(--border);">Equal to</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);font-family:monospace;color:var(--accent);"><></td><td style="padding:4px 8px;border:1px solid var(--border);">Not equal</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);font-family:monospace;color:var(--accent);">&gt;</td><td style="padding:4px 8px;border:1px solid var(--border);">Greater than</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);font-family:monospace;color:var(--accent);">&lt;</td><td style="padding:4px 8px;border:1px solid var(--border);">Less than</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);font-family:monospace;color:var(--accent);">&gt;=</td><td style="padding:4px 8px;border:1px solid var(--border);">Greater or equal</td></tr>
+          <tr><td style="padding:4px 8px;border:1px solid var(--border);font-family:monospace;color:var(--accent);">&lt;=</td><td style="padding:4px 8px;border:1px solid var(--border);">Less or equal</td></tr>
+        </table>
+      </div>
+      <div class="callout info"><strong>🔗 Logical Operators</strong><code> And </code>&nbsp;<code> Or </code>&nbsp;<code> Not </code><br>Example: <code>If x > 0 And x &lt; 100 Then</code></div>
+    </div>
+  </div>
+</div>
+
+<!-- S3 Select Case -->
+<div class="slide">
+  <h2>Select Case — Cleaner Multiple Choices</h2>
+  <p>When checking one variable against many values, <b>Select Case</b> is cleaner than many ElseIf statements:</p>
+  <div class="two-col">
+    <div>
+      <div class="code-block"><span class="kw">Dim</span> dept <span class="kw">As</span> <span class="type">String</span>
+dept = <span class="str">"Engineering"</span>
+
+<span class="kw">Select Case</span> dept
+    <span class="kw">Case</span> <span class="str">"Sales"</span>
+        budget = <span class="num">500000</span>
+    <span class="kw">Case</span> <span class="str">"Engineering"</span>
+        budget = <span class="num">1200000</span>
+    <span class="kw">Case</span> <span class="str">"HR"</span>, <span class="str">"Admin"</span>
+        budget = <span class="num">300000</span>
+    <span class="kw">Case Else</span>
+        budget = <span class="num">200000</span>
+<span class="kw">End Select</span></div>
+    </div>
+    <div>
+      <div class="code-block"><span class="com">' Works with numbers too:</span>
+<span class="kw">Select Case</span> score
+    <span class="kw">Case</span> <span class="num">90</span> <span class="kw">To</span> <span class="num">100</span>
+        grade = <span class="str">"A"</span>
+    <span class="kw">Case</span> <span class="num">80</span> <span class="kw">To</span> <span class="num">89</span>
+        grade = <span class="str">"B"</span>
+    <span class="kw">Case</span> <span class="kw">Is</span> >= <span class="num">70</span>
+        grade = <span class="str">"C"</span>
+    <span class="kw">Case Else</span>
+        grade = <span class="str">"F"</span>
+<span class="kw">End Select</span></div>
+      <div class="callout tip"><strong>💡 When to use Select Case</strong>When you're comparing ONE variable against 3+ possible values. Cleaner than a chain of ElseIf.</div>
+    </div>
+  </div>
+</div>
+
+<!-- S4 For Next -->
+<div class="slide">
+  <h2>For / Next Loop — Count from A to B</h2>
+  <div class="two-col">
+    <div>
+      <div class="code-block"><span class="com">' Basic For/Next</span>
+<span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+<span class="kw">For</span> i = <span class="num">1</span> <span class="kw">To</span> <span class="num">5</span>
+    Cells(i, <span class="num">1</span>).Value = i * <span class="num">10</span>
+<span class="kw">Next</span> i
+
+<span class="com">' Count backwards with Step</span>
+<span class="kw">For</span> i = <span class="num">10</span> <span class="kw">To</span> <span class="num">1</span> <span class="kw">Step</span> -<span class="num">1</span>
+    <span class="func">Debug.Print</span> i
+<span class="kw">Next</span> i
+
+<span class="com">' Count by 2s</span>
+<span class="kw">For</span> i = <span class="num">0</span> <span class="kw">To</span> <span class="num">10</span> <span class="kw">Step</span> <span class="num">2</span>
+    <span class="com">' i = 0, 2, 4, 6, 8, 10</span>
+<span class="kw">Next</span> i
+
+<span class="com">' Exit loop early</span>
+<span class="kw">For</span> i = <span class="num">1</span> <span class="kw">To</span> <span class="num">100</span>
+    <span class="kw">If</span> Cells(i,<span class="num">1</span>) = <span class="str">""</span> <span class="kw">Then Exit For</span>
+<span class="kw">Next</span> i</div>
+    </div>
+    <div>
+      <h3>🎬 Loop Visualizer</h3>
+      <div class="loop-vis">
+        <div style="margin-bottom:8px;color:var(--muted);font-size:.85em;">For i = 1 To 5 — watching iteration:</div>
+        <div id="loopVis" class="loop-row"></div>
+        <div id="loopStatus" style="margin-top:8px;font-size:.85em;color:var(--muted);">Click Start to visualize</div>
+      </div>
+      <button class="btn btn-a" onclick="playLoop()">▶ Start</button>
+      <button class="btn btn-g" onclick="resetLoop()" style="margin-left:6px;">↺ Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- S5 For Each -->
+<div class="slide">
+  <h2>For Each — Loop Over Collections</h2>
+  <p><b>For Each</b> is used when you want to process every item in a collection (sheets, rows, cells, etc.):</p>
+  <div class="code-block"><span class="com">' Loop over every worksheet</span>
+<span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+<span class="kw">For Each</span> ws <span class="kw">In</span> ThisWorkbook.Worksheets
+    ws.Tab.Color = <span class="num">RGB(255, 143, 0)</span>  <span class="com">' Set tab color</span>
+<span class="kw">Next</span> ws
+
+<span class="com">' Loop over a range of cells</span>
+<span class="kw">Dim</span> cell <span class="kw">As</span> <span class="type">Range</span>
+<span class="kw">For Each</span> cell <span class="kw">In</span> Range(<span class="str">"A1:A10"</span>)
+    <span class="kw">If</span> cell.Value < <span class="num">0</span> <span class="kw">Then</span>
+        cell.Interior.Color = <span class="num">RGB(255, 0, 0)</span>  <span class="com">' Highlight negatives</span>
+    <span class="kw">End If</span>
+<span class="kw">Next</span> cell
+
+<span class="com">' Loop over an array</span>
+<span class="kw">Dim</span> names() <span class="kw">As</span> <span class="type">String</span>
+names = <span class="func">Split</span>(<span class="str">"Tanaka,Suzuki,Yamamoto"</span>, <span class="str">","</span>)
+<span class="kw">Dim</span> n <span class="kw">As</span> <span class="type">Variant</span>
+<span class="kw">For Each</span> n <span class="kw">In</span> names
+    <span class="func">Debug.Print</span> n
+<span class="kw">Next</span> n</div>
+  <div class="callout success"><strong>✅ For Each vs For i</strong>Use <b>For Each</b> when you want every item in a collection. Use <b>For i</b> when you need the index number or want to skip items.</div>
+</div>
+
+<!-- S6 Do Loops -->
+<div class="slide">
+  <h2>Do Loops — Run While a Condition is True</h2>
+  <div class="two-col">
+    <div>
+      <div class="code-block"><span class="com">' Do While — check BEFORE running</span>
+<span class="kw">Dim</span> row <span class="kw">As</span> <span class="type">Long</span>
+row = <span class="num">1</span>
+<span class="kw">Do While</span> Cells(row, <span class="num">1</span>) <> <span class="str">""</span>
+    <span class="com">' process the row</span>
+    row = row + <span class="num">1</span>
+<span class="kw">Loop</span>
+
+<span class="com">' Do Until — stop when TRUE</span>
+row = <span class="num">1</span>
+<span class="kw">Do Until</span> Cells(row, <span class="num">1</span>) = <span class="str">""</span>
+    row = row + <span class="num">1</span>
+<span class="kw">Loop</span>
+
+<span class="com">' Do...Loop While — check AFTER running</span>
+<span class="kw">Dim</span> answer <span class="kw">As</span> <span class="type">String</span>
+<span class="kw">Do</span>
+    answer = <span class="func">InputBox</span>(<span class="str">"Enter 'yes' to continue"</span>)
+<span class="kw">Loop While</span> answer <> <span class="str">"yes"</span></div>
+    </div>
+    <div>
+      <div class="callout warning"><strong>⚠️ Infinite Loop Warning!</strong>Always make sure your loop condition eventually becomes False, or use <code>Exit Do</code> to break out safely.</div>
+      <div class="callout info"><strong>🔍 Finding the Last Row (common pattern)</strong>
+        <div class="code-block" style="margin:6px 0;font-size:.82em;"><span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+lastRow = Cells(Rows.Count, <span class="num">1</span>) _
+    .End(xlUp).Row</div>
+This finds the last used row in column A — extremely useful!</div>
+    </div>
+  </div>
+</div>
+
+<!-- S7 With Statement -->
+<div class="slide">
+  <h2>The With Statement — Cleaner Code</h2>
+  <p><b>With</b> lets you perform multiple operations on one object without repeating its name:</p>
+  <div class="two-col">
+    <div>
+      <p style="color:var(--red);">❌ Without With (repetitive):</p>
+      <div class="code-block">Range(<span class="str">"A1"</span>).Font.Bold = <span class="kw">True</span>
+Range(<span class="str">"A1"</span>).Font.Size = <span class="num">14</span>
+Range(<span class="str">"A1"</span>).Font.Color = <span class="num">RGB(255,0,0)</span>
+Range(<span class="str">"A1"</span>).Interior.Color = <span class="num">RGB(255,255,0)</span>
+Range(<span class="str">"A1"</span>).HorizontalAlignment = xlCenter</div>
+    </div>
+    <div>
+      <p style="color:var(--green);">✅ With With (clean):</p>
+      <div class="code-block"><span class="kw">With</span> Range(<span class="str">"A1"</span>)
+    .Font.Bold = <span class="kw">True</span>
+    .Font.Size = <span class="num">14</span>
+    .Font.Color = <span class="num">RGB(255,0,0)</span>
+    .Interior.Color = <span class="num">RGB(255,255,0)</span>
+    .HorizontalAlignment = xlCenter
+<span class="kw">End With</span></div>
+    </div>
+  </div>
+  <div class="callout tip"><strong>💡 Also nest With statements</strong>You can nest With inside another With for deeply nested objects like <code>With ws.Cells(1,1).Font</code>.</div>
+</div>
+
+<!-- S8 Nested Loops -->
+<div class="slide">
+  <h2>Nested Loops — Loops Inside Loops</h2>
+  <p>Use nested loops to process 2D data (like rows AND columns):</p>
+  <div class="code-block"><span class="kw">Sub</span> <span class="func">FillTable</span>()
+    <span class="kw">Dim</span> r <span class="kw">As</span> <span class="type">Long</span>, c <span class="kw">As</span> <span class="type">Long</span>
+    
+    <span class="com">' Loop through rows 1-5 and columns 1-4</span>
+    <span class="kw">For</span> r = <span class="num">1</span> <span class="kw">To</span> <span class="num">5</span>
+        <span class="kw">For</span> c = <span class="num">1</span> <span class="kw">To</span> <span class="num">4</span>
+            Cells(r, c).Value = r & <span class="str">"-"</span> & c
+        <span class="kw">Next</span> c
+    <span class="kw">Next</span> r
+    
+    <span class="com">' Result in spreadsheet:</span>
+    <span class="com">' A1=1-1  B1=1-2  C1=1-3  D1=1-4</span>
+    <span class="com">' A2=2-1  B2=2-2  C2=2-3  D2=2-4</span>
+    <span class="com">' ...etc</span>
+<span class="kw">End Sub</span></div>
+  <div class="callout info"><strong>📌 Performance Tip</strong>When looping over thousands of cells, add <code>Application.ScreenUpdating = False</code> at the start and <code>True</code> at the end. This prevents screen flicker and runs much faster!</div>
+</div>
+
+<!-- S9 DEMO -->
+<div class="slide">
+  <h2>🎬 Demo — Control Flow in Action</h2>
+  <div class="demo-box">
+    <div class="demo-tb">📺 Grading macro — using If/Else to assign letter grades</div>
+    <div class="demo-area" id="cfDemo"></div>
+    <div class="demo-out" id="cfOut">Press ▶ Play to start</div>
+    <div class="demo-ctrl">
+      <button class="btn btn-a" onclick="playCF()">▶ Play</button>
+      <button class="btn btn-g" onclick="resetCF()">↺ Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- S10 Practice -->
+<div class="slide">
+  <h2>✏️ Practice Exercises</h2>
+  <div class="three-col">
+    <div class="card" style="border-color:#4caf50;">
+      <h3>🟢 Exercise 1</h3>
+      <p>Write a macro that loops from 1 to 10 and writes each number to cells A1:A10.</p>
+    </div>
+    <div class="card" style="border-color:#ff9800;">
+      <h3>🟡 Exercise 2</h3>
+      <p>Write a macro that reads a score from cell B1 and writes "Pass" or "Fail" to C1 (pass = 60+).</p>
+    </div>
+    <div class="card" style="border-color:#f44336;">
+      <h3>🔴 Exercise 3</h3>
+      <p>Write a macro that loops through A1:A20 and highlights cells in red where value is negative.</p>
+    </div>
+  </div>
+  <button class="show-answer-btn" onclick="toggleAnswer(this)">👁 Show Answer</button>
+  <div class="answer-box" style="display:none;">
+  <div class="card" style="margin-top:6px;">
+    <h3>💡 Solution hints</h3>
+    <div class="code-block" style="margin:6px 0;"><span class="com">' Ex 1: For loop</span>
+<span class="kw">For</span> i = <span class="num">1</span> <span class="kw">To</span> <span class="num">10</span> : Cells(i,<span class="num">1</span>).Value = i : <span class="kw">Next</span> i
+
+<span class="com">' Ex 2: If/Then</span>
+<span class="kw">If</span> Cells(<span class="num">1</span>,<span class="num">2</span>) >= <span class="num">60</span> <span class="kw">Then</span> Cells(<span class="num">1</span>,<span class="num">3</span>) = <span class="str">"Pass"</span> <span class="kw">Else</span> Cells(<span class="num">1</span>,<span class="num">3</span>) = <span class="str">"Fail"</span>
+
+<span class="com">' Ex 3: For Each + If</span>
+<span class="kw">For Each</span> cell <span class="kw">In</span> Range(<span class="str">"A1:A20"</span>)
+    <span class="kw">If</span> cell.Value < <span class="num">0</span> <span class="kw">Then</span> cell.Interior.Color = <span class="num">RGB(255,0,0)</span>
+<span class="kw">Next</span></div>
+  </div>
+  </div>
+</div>
+
+<!-- S11 Quiz -->
+<div class="slide">
+  <h2>🎯 Module 4 Quiz</h2>
+  <div class="quiz-q">Q1: What is the output of this loop? <code>For i=1 To 3 : Debug.Print i*2 : Next i</code></div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'The loop runs with i=1,2,3. i*2 = 2,4,6')">1, 2, 3</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'Correct! i=1→2, i=2→4, i=3→6')">2, 4, 6</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'The loop runs with i=1,2,3. i*2 = 2,4,6')">3, 6, 9</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'The loop runs with i=1,2,3. i*2 = 2,4,6')">1, 4, 9</div>
+  </div>
+  <div id="q1fb"></div><br>
+  <div class="quiz-q">Q2: Which loop type is best for processing all worksheets in a workbook?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'For Each is ideal for collections like Worksheets')">For i = 1 To 10</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'Correct! For Each ws In ThisWorkbook.Worksheets is perfect for this.')">For Each ws In Worksheets</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'For Each is ideal for collections like Worksheets')">Do While</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'For Each is ideal for collections like Worksheets')">Select Case</div>
+  </div>
+  <div id="q2fb"></div>
+</div>
+
+<!-- S12 Summary -->
+<div class="slide title-slide">
+  <div class="big-icon">🎉</div>
+  <h1>Module 4 <span>Complete!</span></h1>
+  <div class="card" style="text-align:left;max-width:500px;margin-top:20px;">
+    <h3>📋 Key Takeaways</h3>
+    <ul class="bullets">
+      <li><b>If/Then/Else</b> — make decisions based on conditions</li>
+      <li><b>Select Case</b> — cleaner for multiple value checks</li>
+      <li><b>For/Next</b> — loop a specific number of times</li>
+      <li><b>For Each</b> — loop over every item in a collection</li>
+      <li><b>Do While/Until</b> — loop while condition is true/false</li>
+      <li><b>With</b> — cleaner code for multiple operations on one object</li>
+    </ul>
+  </div>
+  <p style="margin-top:16px;color:var(--muted);">Next: <b>Module 05 – Procedures &amp; Functions</b></p>
+</div>
+
+</div>
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div>
+<div id="np">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--accent);">📝 Notes – M04</b><button class="btn btn-g" style="padding:2px 8px;" onclick="toggleNotes()">✕</button></div>
+  <textarea id="na" placeholder="Notes..."></textarea>
+  <button class="btn btn-a" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;const total=slides.length;
+document.getElementById('tn').textContent=total;
+function show(n){slides[cur].classList.remove('active');cur=Math.max(0,Math.min(n,total-1));slides[cur].classList.add('active');document.getElementById('cn').textContent=cur+1;document.getElementById('pf').style.width=((cur+1)/total*100)+'%';document.getElementById('prevBtn').disabled=cur===0;const nb=document.getElementById('nextBtn');if(cur===total-1){nb.textContent='✓ Complete';nb.classList.add('done');}else{nb.textContent='Next ▶';nb.classList.remove('done');}}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}function prev(){show(cur-1);}
+function toggleAnswer(btn){const box=btn.nextElementSibling;const show=box.style.display==='none';box.style.display=show?'block':'none';btn.textContent=show?'🙈 Hide Answer':'👁 Show Answer';btn.classList.toggle('revealed',show);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+function checkQ(id,el,ok,msg){document.querySelectorAll('#'+id+' .quiz-opt').forEach(o=>o.style.pointerEvents='none');el.classList.add(ok?'correct':'wrong');const fb=document.getElementById(id.replace('opts','fb'));fb.innerHTML=`<div class="feedback ${ok?'ok':'bad'}">${ok?'✅':'❌'} ${msg}</div>`;}
+// Loop visualizer
+let loopTimer=null;
+function playLoop(){
+  resetLoop();const vis=document.getElementById('loopVis');const st=document.getElementById('loopStatus');
+  const cells=[];
+  for(let i=1;i<=5;i++){const el=document.createElement('div');el.className='loop-cell waiting';el.textContent='i='+i;vis.appendChild(el);cells.push(el);}
+  let i=0;
+  loopTimer=setInterval(()=>{
+    if(i>0)cells[i-1].className='loop-cell done';
+    if(i>=5){clearInterval(loopTimer);st.textContent='Loop complete! All 5 iterations done.';return;}
+    cells[i].className='loop-cell current';
+    st.textContent=`Iteration ${i+1}/5: i = ${i+1}, writing ${(i+1)*10} to cell A${i+1}`;
+    i++;
+  },800);
+}
+function resetLoop(){if(loopTimer)clearInterval(loopTimer);document.getElementById('loopVis').innerHTML='';document.getElementById('loopStatus').textContent='Click Start to visualize';}
+// CF Demo
+const cfSteps=[
+  {code:`<span class="kw">Sub</span> <span class="func">GradeStudents</span>()`,out:'Starting grading macro...'},
+  {code:`&nbsp;&nbsp;<span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>, score <span class="kw">As</span> <span class="type">Long</span>`,out:'Variables declared...'},
+  {code:`&nbsp;&nbsp;<span class="kw">For</span> i = <span class="num">1</span> <span class="kw">To</span> <span class="num">5</span>`,out:'Loop starts — processing 5 students'},
+  {code:`&nbsp;&nbsp;&nbsp;&nbsp;score = Cells(i, <span class="num">1</span>).Value`,out:'Reading score from column A...'},
+  {code:`&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">Select Case</span> score`,out:'Evaluating score with Select Case...'},
+  {code:`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">Case</span> <span class="num">90</span> <span class="kw">To</span> <span class="num">100</span>: Cells(i,<span class="num">2</span>) = <span class="str">"A"</span>`,out:'Score 90-100 → Grade A'},
+  {code:`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">Case</span> <span class="num">80</span> <span class="kw">To</span> <span class="num">89</span>:  Cells(i,<span class="num">2</span>) = <span class="str">"B"</span>`,out:'Score 80-89 → Grade B'},
+  {code:`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">Case Is</span> >= <span class="num">70</span>:    Cells(i,<span class="num">2</span>) = <span class="str">"C"</span>`,out:'Score 70+ → Grade C'},
+  {code:`&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">Case Else</span>:          Cells(i,<span class="num">2</span>) = <span class="str">"F"</span>`,out:'Below 70 → Grade F'},
+  {code:`&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">End Select</span> : <span class="kw">Next</span> i`,out:'Moving to next student...'},
+  {code:`<span class="kw">End Sub</span>`,out:'✅ All 5 students graded! Grades written to column B.'},
+];
+let cft=null;
+function playCF(){resetCF();const el=document.getElementById('cfDemo'),out=document.getElementById('cfOut');let i=0;cft=setInterval(()=>{if(i>=cfSteps.length){clearInterval(cft);return;}const line=document.createElement('div');line.innerHTML=cfSteps[i].code;line.style.animation='fadeUp .2s';el.appendChild(line);out.textContent=cfSteps[i].out;i++;},600);}
+function resetCF(){if(cft)clearInterval(cft);document.getElementById('cfDemo').innerHTML='';document.getElementById('cfOut').textContent='Press ▶ Play to start';}
+function toggleNotes(){document.getElementById('np').classList.toggle('show');}
+function saveNotes(){localStorage.setItem('vba_notes_04',document.getElementById('na').value);alert('Saved!');}
+document.getElementById('na').value=localStorage.getItem('vba_notes_04')||'';
+</script>
+</body>
+</html>

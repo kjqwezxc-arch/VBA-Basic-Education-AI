@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 13 – UserForm Data Automation</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#2e7d32;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+.pbar{background:#e2e8f0;}.pfill{height:6px;background:var(--accent);transition:width .35s;}
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:28px 60px;display:none;overflow-y:auto;flex-direction:column;justify-content:flex-start;}
+.slide.active{display:flex;animation:fadeUp .3s ease;}
+.slide.center{justify-content:center;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.title-slide{text-align:center;align-items:center;justify-content:center;}
+.big-icon{font-size:4.5em;margin-bottom:12px;}
+h1{font-size:2.2em;margin-bottom:10px;}h1 span{color:var(--accent);}
+h2{font-size:1.55em;margin-bottom:10px;color:var(--accent);}h3{font-size:1.05em;color:var(--accent);margin-bottom:6px;}
+p{line-height:1.75;margin-bottom:8px;}
+.subtitle{color:var(--muted);font-size:1.05em;}
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:10px 14px;border-radius:0 10px 10px 0;margin:8px 0;font-size:.9em;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout.warn{border-color:#f59e0b;background:#fffbeb;}
+.callout strong{display:block;margin-bottom:3px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:8px 0;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:8px 0;}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:12px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:14px 16px;font-family:'Cascadia Code','Consolas',monospace;font-size:.82em;white-space:pre;overflow-x:auto;margin:8px 0;line-height:1.6;color:#d4d4d4;}
+.code-block.sm{font-size:.76em;padding:10px 14px;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}.op{color:#d4d4d4;}
+
+/* ── UserForm Mockup ── */
+.form-mockup{background:#f0f0f0;border:2px solid #999;border-radius:4px;font-family:Arial,sans-serif;font-size:12px;color:#000;min-width:300px;}
+.form-titlebar{background:#1a3a6b;color:#fff;padding:5px 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.form-titlebar button{background:#c0392b;color:#fff;border:none;padding:1px 7px;cursor:pointer;font-size:11px;border-radius:2px;}
+.form-body{padding:12px;}
+.fm-row{margin-bottom:8px;}
+.fm-label{font-weight:bold;display:block;margin-bottom:2px;font-size:11px;color:#333;}
+.fm-label span{color:#c62828;}
+.fm-input{width:100%;border:1px solid #aaa;padding:3px 6px;background:#fff;font-size:12px;}
+.fm-select{width:100%;border:1px solid #aaa;padding:3px 6px;background:#fff;font-size:12px;}
+.fm-textarea{width:100%;border:1px solid #aaa;padding:3px 6px;background:#fff;font-size:11px;height:44px;resize:none;}
+.fm-btn{padding:5px 16px;border:1px solid #aaa;cursor:pointer;font-size:11px;margin-right:5px;border-radius:2px;}
+.fm-btn-ok{background:#217346;color:#fff;border-color:#217346;}
+.fm-btn-copy{background:#1a3a6b;color:#fff;border-color:#1a3a6b;}
+.fm-btn-search{background:#8e44ad;color:#fff;border-color:#8e44ad;}
+.fm-divider{border:none;border-top:1px solid #ccc;margin:8px 0;}
+.fm-chk{margin-right:4px;}
+.fm-row-inline{display:flex;gap:8px;align-items:center;}
+.fm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.fm-status-bar{background:#1a3a6b;color:#fff;padding:3px 8px;font-size:10px;text-align:left;}
+.tab-bar{display:flex;border-bottom:1px solid #aaa;}
+.tab{padding:4px 12px;font-size:11px;border:1px solid #aaa;border-bottom:none;background:#ddd;cursor:pointer;margin-right:2px;}
+.tab.active-tab{background:#fff;color:#1a3a6b;font-weight:bold;}
+
+/* ── Sheet diagram ── */
+.sheet-tab{display:inline-block;padding:4px 16px;border-radius:6px 6px 0 0;font-size:.8em;font-weight:700;margin-right:4px;border:1.5px solid var(--border);border-bottom:none;}
+.sheet-content{border:1.5px solid var(--border);border-radius:0 8px 8px 8px;background:#fff;padding:10px 14px;font-size:.82em;}
+.sheet-row{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-bottom:1px;}
+.sh-cell{border:1px solid #dde3ec;padding:3px 6px;font-size:.8em;overflow:hidden;white-space:nowrap;}
+.sh-hdr{background:#1a3a6b;color:#fff;font-weight:700;}
+.sh-alt{background:#f8fafc;}
+
+/* ── Workflow diagram ── */
+.workflow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin:10px 0;}
+.wf-box{background:var(--card);border:2px solid var(--border);border-radius:10px;padding:10px 14px;text-align:center;font-size:.82em;min-width:110px;}
+.wf-box.accent{border-color:var(--accent);background:#fff7ed;}
+.wf-box.blue{border-color:#3b82f6;background:#eff6ff;}
+.wf-box.green{border-color:var(--green);background:#f0fdf4;}
+.wf-box.purple{border-color:#7c3aed;background:#f5f3ff;}
+.wf-arr{color:var(--accent);font-size:1.4em;padding:0 6px;line-height:1;}
+.wf-icon{font-size:1.5em;margin-bottom:4px;}
+.wf-label{font-weight:700;color:var(--text);}
+.wf-sub{color:var(--muted);font-size:.78em;margin-top:2px;}
+
+/* ── Step list ── */
+.step-list{counter-reset:steps;list-style:none;margin:8px 0;}
+.step-list li{counter-increment:steps;padding:8px 12px 8px 44px;position:relative;border-left:3px solid var(--accent);margin-bottom:6px;background:var(--card);border-radius:0 8px 8px 0;}
+.step-list li::before{content:counter(steps);position:absolute;left:-16px;top:50%;transform:translateY(-50%);width:28px;height:28px;background:var(--accent);color:#000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.82em;}
+.step-title{font-weight:700;margin-bottom:2px;}
+.step-desc{color:var(--muted);font-size:.88em;}
+
+/* ── Quiz ── */
+.quiz-q{font-size:1.05em;font-weight:600;margin-bottom:8px;}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:8px 14px;margin:5px 0;cursor:pointer;transition:all .2s;font-size:.92em;}
+.quiz-opt:hover{border-color:var(--accent);}
+.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:8px 14px;border-radius:8px;margin-top:6px;font-size:.88em;}
+.feedback.ok{background:rgba(76,175,80,.12);border-left:3px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.12);border-left:3px solid var(--red);}
+
+/* ── Footer/Nav ── */
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;}
+.nav-btn:hover{background:#e2e8f0;}.nav-btn:disabled{opacity:.3;cursor:default;}.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+.btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;}
+.btn-a{background:var(--accent);color:#000;}.btn-g{background:#e2e8f0;color:var(--text);}
+#np{display:none;position:fixed;bottom:60px;right:16px;width:300px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+#np.show{display:block;}
+#np textarea{width:100%;height:110px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.85em;}
+
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="badge">Module 13</div>
+  <span class="htitle">⚙️ UserForm Data Automation</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">14</span> &nbsp;|&nbsp; ⏱ 55 min &nbsp;|&nbsp; 🔴 Advanced
+    <button class="btn btn-g" style="padding:4px 10px;font-size:.78em;margin-left:12px;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+<div class="scontainer">
+
+<!-- ═══════════════════ S1 – Title ═══════════════════ -->
+<div class="slide title-slide active">
+  <div class="big-icon">⚙️</div>
+  <h1>UserForm <span>Data Automation</span></h1>
+  <p class="subtitle">Build a real-world inventory management system with VBA UserForms,<br>cross-workbook data transfer, and automated workflows</p>
+  <div style="display:flex;gap:14px;margin-top:24px;flex-wrap:wrap;justify-content:center;">
+    <div class="card" style="text-align:center;min-width:130px;"><div style="font-size:1.8em;">📋</div><div style="font-size:.85em;font-weight:700;margin-top:4px;">Data Entry Form</div><div style="color:var(--muted);font-size:.76em;">UserForm with validation</div></div>
+    <div class="card" style="text-align:center;min-width:130px;"><div style="font-size:1.8em;">📤</div><div style="font-size:.85em;font-weight:700;margin-top:4px;">Cross-Workbook Copy</div><div style="color:var(--muted);font-size:.76em;">Transfer data between files</div></div>
+    <div class="card" style="text-align:center;min-width:130px;"><div style="font-size:1.8em;">🔄</div><div style="font-size:.85em;font-weight:700;margin-top:4px;">Scatter Update</div><div style="color:var(--muted);font-size:.76em;">Find & update all matches</div></div>
+    <div class="card" style="text-align:center;min-width:130px;"><div style="font-size:1.8em;">📊</div><div style="font-size:.85em;font-weight:700;margin-top:4px;">Auto Summary</div><div style="color:var(--muted);font-size:.76em;">Generate pivot reports</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S2 – Project Overview ═══════════════════ -->
+<div class="slide">
+  <h2>🏗️ What We're Building</h2>
+  <p style="margin-bottom:10px;">A complete <b>Parts Inventory Management System</b> — a realistic Yamaha-style example that combines all automation concepts.</p>
+  <div class="two-col">
+    <div>
+      <div class="workflow" style="flex-direction:column;align-items:flex-start;gap:6px;">
+        <div class="wf-box accent" style="width:100%;"><div class="wf-icon">📋</div><div class="wf-label">frmPartsEntry</div><div class="wf-sub">UserForm — data entry &amp; search</div></div>
+        <div class="wf-arr" style="align-self:center;">↓</div>
+        <div class="wf-box blue" style="width:100%;"><div class="wf-icon">📄</div><div class="wf-label">Inventory.xlsm</div><div class="wf-sub">Local workbook — 4 sheets</div></div>
+        <div class="wf-arr" style="align-self:center;">↓</div>
+        <div class="wf-box green" style="width:100%;"><div class="wf-icon">🗄️</div><div class="wf-label">MasterDB.xlsx</div><div class="wf-sub">Central database workbook</div></div>
+        <div class="wf-arr" style="align-self:center;">↓</div>
+        <div class="wf-box purple" style="width:100%;"><div class="wf-icon">📊</div><div class="wf-label">Summary Report</div><div class="wf-sub">Auto-generated on demand</div></div>
+      </div>
+    </div>
+    <div>
+      <h3>The 4 Worksheets in Inventory.xlsm</h3>
+      <div style="margin-bottom:8px;">
+        <span class="sheet-tab" style="background:#1a3a6b;color:#fff;">📥 Input</span>
+        <span style="font-size:.82em;color:var(--muted);">Staging area — temporary data</span>
+      </div>
+      <div style="margin-bottom:8px;">
+        <span class="sheet-tab" style="background:#217346;color:#fff;">🗃️ Database</span>
+        <span style="font-size:.82em;color:var(--muted);">Main record store</span>
+      </div>
+      <div style="margin-bottom:8px;">
+        <span class="sheet-tab" style="background:#8e44ad;color:#fff;">📊 Summary</span>
+        <span style="font-size:.82em;color:var(--muted);">Calculated totals &amp; KPIs</span>
+      </div>
+      <div style="margin-bottom:8px;">
+        <span class="sheet-tab" style="background:#c62828;color:#fff;">📦 Archive</span>
+        <span style="font-size:.82em;color:var(--muted);">Moved-out / closed records</span>
+      </div>
+      <div class="callout info" style="margin-top:10px;"><strong>📌 Key Features</strong>
+        • Form validates input before writing<br>
+        • One-click copy to MasterDB.xlsx<br>
+        • Search &amp; update scattered records<br>
+        • Auto-generate summary sheet
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S3 – Sheet Structure ═══════════════════ -->
+<div class="slide">
+  <h2>📄 Database Sheet Structure</h2>
+  <p style="font-size:.9em;margin-bottom:8px;">Set up your <b>Database</b> sheet with these columns — everything the form writes to:</p>
+  <div style="overflow-x:auto;">
+    <div class="sheet-row">
+      <div class="sh-cell sh-hdr">A — Part ID</div>
+      <div class="sh-cell sh-hdr">B — Part Name</div>
+      <div class="sh-cell sh-hdr">C — Category</div>
+      <div class="sh-cell sh-hdr">D — Qty Stock</div>
+      <div class="sh-cell sh-hdr">E — Unit Price</div>
+      <div class="sh-cell sh-hdr">F — Supplier</div>
+    </div>
+    <div class="sheet-row">
+      <div class="sh-cell">YMH-001</div><div class="sh-cell">Brake Pad Set</div><div class="sh-cell">Brakes</div><div class="sh-cell">50</div><div class="sh-cell">¥3,200</div><div class="sh-cell">Nippon Parts</div>
+    </div>
+    <div class="sheet-row" style="background:#f8fafc;">
+      <div class="sh-cell">YMH-002</div><div class="sh-cell">Air Filter</div><div class="sh-cell">Engine</div><div class="sh-cell">120</div><div class="sh-cell">¥850</div><div class="sh-cell">Yamaha OEM</div>
+    </div>
+    <div class="sheet-row">
+      <div class="sh-cell">YMH-003</div><div class="sh-cell">Chain 525</div><div class="sh-cell">Drive</div><div class="sh-cell">30</div><div class="sh-cell">¥7,400</div><div class="sh-cell">DID Japan</div>
+    </div>
+  </div>
+  <div style="margin-top:8px;overflow-x:auto;">
+    <div class="sheet-row">
+      <div class="sh-cell sh-hdr" style="background:#555;">G — Reorder Pt</div>
+      <div class="sh-cell sh-hdr" style="background:#555;">H — Status</div>
+      <div class="sh-cell sh-hdr" style="background:#555;">I — Last Updated</div>
+      <div class="sh-cell sh-hdr" style="background:#555;">J — Updated By</div>
+      <div class="sh-cell sh-hdr" style="background:#555;">K — Remarks</div>
+      <div class="sh-cell sh-hdr" style="background:#555;">L — Synced?</div>
+    </div>
+    <div class="sheet-row">
+      <div class="sh-cell">20</div><div class="sh-cell" style="color:#2e7d32;font-weight:700;">Active</div><div class="sh-cell">2026/05/01</div><div class="sh-cell">Tanaka</div><div class="sh-cell">Checked</div><div class="sh-cell" style="color:#2e7d32;">✔</div>
+    </div>
+    <div class="sheet-row" style="background:#f8fafc;">
+      <div class="sh-cell">50</div><div class="sh-cell" style="color:#2e7d32;font-weight:700;">Active</div><div class="sh-cell">2026/05/03</div><div class="sh-cell">Suzuki</div><div class="sh-cell"></div><div class="sh-cell" style="color:#aaa;">—</div>
+    </div>
+  </div>
+  <div class="two-col" style="margin-top:12px;">
+    <div class="callout warn"><strong>⚠️ Row 1 = Headers only</strong>All data starts from Row 2. The macro uses <code>End(xlUp).Row + 1</code> to always find the next empty row automatically.</div>
+    <div class="callout info"><strong>📌 Column L — Synced?</strong>Tracks whether a record has been pushed to MasterDB.xlsx. The sync macro only copies rows where L = blank (not yet synced).</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S4 – UserForm Visual Design ═══════════════════ -->
+<div class="slide">
+  <h2>🖥️ UserForm Design: frmPartsEntry</h2>
+  <div class="two-col" style="align-items:flex-start;">
+    <div>
+      <h3>Controls to add (Toolbox → drag onto form)</h3>
+      <div style="font-size:.85em;margin-bottom:8px;">
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">txtPartID</span> — TextBox — Part ID (auto-generated)</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">txtPartName</span> — TextBox — Part Name *</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">cboCategory</span> — ComboBox — Category *</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">txtQty</span> — TextBox — Qty in Stock *</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">txtPrice</span> — TextBox — Unit Price ¥</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">cboSupplier</span> — ComboBox — Supplier</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">txtReorder</span> — TextBox — Reorder Point</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">cboStatus</span> — ComboBox — Status</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">txtRemarks</span> — TextBox — Remarks (multiline)</div>
+        <div style="padding:4px 0;border-bottom:1px solid var(--border);"><span style="color:var(--accent);font-weight:700;">txtSearch</span> — TextBox — Search by Part ID</div>
+        <div style="padding:4px 0;"><span style="color:var(--accent);font-weight:700;">btnSave, btnSearch, btnClear, btnSync, btnClose</span></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;">
+      <div class="form-mockup" style="width:310px;">
+        <div class="form-titlebar"><span>⚙️ Parts Inventory — frmPartsEntry</span><button>✕</button></div>
+        <div class="tab-bar"><div class="tab active-tab">📝 Entry</div><div class="tab">🔍 Search</div><div class="tab">📤 Sync</div></div>
+        <div class="form-body" style="padding:10px;">
+          <div class="fm-grid">
+            <div class="fm-row"><label class="fm-label">Part ID</label><input class="fm-input" value="YMH-004" readonly style="background:#f0f0f0;"></div>
+            <div class="fm-row"><label class="fm-label">Status</label><select class="fm-select"><option>Active</option><option>Inactive</option></select></div>
+          </div>
+          <div class="fm-row" style="margin-top:4px;"><label class="fm-label">Part Name <span>*</span></label><input class="fm-input" placeholder="e.g. Oil Filter"></div>
+          <div class="fm-grid">
+            <div class="fm-row"><label class="fm-label">Category <span>*</span></label><select class="fm-select"><option>Engine</option><option>Brakes</option><option>Drive</option></select></div>
+            <div class="fm-row"><label class="fm-label">Supplier</label><select class="fm-select"><option>Yamaha OEM</option><option>Nippon Parts</option></select></div>
+          </div>
+          <div class="fm-grid">
+            <div class="fm-row"><label class="fm-label">Qty Stock <span>*</span></label><input class="fm-input" value=""></div>
+            <div class="fm-row"><label class="fm-label">Reorder Pt</label><input class="fm-input" value=""></div>
+          </div>
+          <div class="fm-row"><label class="fm-label">Unit Price ¥</label><input class="fm-input" value=""></div>
+          <div class="fm-row"><label class="fm-label">Remarks</label><textarea class="fm-textarea" placeholder="Optional notes..."></textarea></div>
+          <hr class="fm-divider">
+          <div style="text-align:right;">
+            <button class="fm-btn fm-btn-ok">💾 Save</button>
+            <button class="fm-btn">🗑 Clear</button>
+            <button class="fm-btn" style="background:#555;color:#fff;border-color:#555;">✕ Close</button>
+          </div>
+        </div>
+        <div class="fm-status-bar">Ready — 3 records in Database</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S5 – Initialize & Setup Code ═══════════════════ -->
+<div class="slide">
+  <h2>💻 VBA Code — Initialize &amp; Auto Part ID</h2>
+  <div class="two-col">
+    <div>
+<div class="code-block sm"><span class="com">' ═══════════════════════════════════
+' MODULE: frmPartsEntry (UserForm code)
+' ═══════════════════════════════════</span>
+
+<span class="kw">Private Sub</span> <span class="func">UserForm_Initialize</span>()
+    <span class="com">' ── Auto-generate next Part ID ──</span>
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = ThisWorkbook.Sheets(<span class="str">"Database"</span>)
+    <span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+    lastRow = ws.Cells(ws.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    <span class="kw">Dim</span> nextNum <span class="kw">As</span> <span class="type">Long</span>
+    nextNum = lastRow  <span class="com">' Row 1 = header</span>
+    txtPartID.Text = <span class="str">"YMH-"</span> &amp; Format(nextNum, <span class="str">"000"</span>)
+    txtPartID.Enabled = <span class="kw">False</span>  <span class="com">' Read-only</span>
+
+    <span class="com">' ── Populate ComboBoxes ──</span>
+    <span class="kw">With</span> cboCategory
+        .AddItem <span class="str">"Engine"</span>
+        .AddItem <span class="str">"Brakes"</span>
+        .AddItem <span class="str">"Drive"</span>
+        .AddItem <span class="str">"Electrical"</span>
+        .AddItem <span class="str">"Body &amp; Frame"</span>
+        .AddItem <span class="str">"Suspension"</span>
+    <span class="kw">End With</span>
+
+    <span class="com">' Load suppliers from Reference sheet</span>
+    <span class="kw">Dim</span> wsRef <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> wsRef = ThisWorkbook.Sheets(<span class="str">"Reference"</span>)
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> wsRef.Cells(wsRef.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+        cboSupplier.AddItem wsRef.Cells(i, <span class="num">1</span>).Value
+    <span class="kw">Next</span> i
+
+    <span class="kw">With</span> cboStatus
+        .AddItem <span class="str">"Active"</span>
+        .AddItem <span class="str">"Inactive"</span>
+        .AddItem <span class="str">"Discontinued"</span>
+        .ListIndex = <span class="num">0</span>
+    <span class="kw">End With</span>
+
+    <span class="com">' Update status bar with record count</span>
+    lblStatus.Caption = <span class="str">"Ready — "</span> &amp; (lastRow - <span class="num">1</span>) &amp; <span class="str">" records in Database"</span>
+<span class="kw">End Sub</span></div>
+    </div>
+    <div>
+      <div class="callout info" style="margin-bottom:10px;"><strong>📌 Auto Part ID Logic</strong>Count rows in Database → subtract 1 (header) → format as 3-digit number → prefix "YMH-". Each new entry gets a unique, sequential ID automatically.</div>
+      <div class="callout success"><strong>✅ Loading ComboBox from Sheet</strong>Instead of hardcoding supplier names in VBA, load them from a "Reference" sheet. Adding a new supplier only requires editing the sheet — no VBA changes needed.</div>
+      <div class="callout warn" style="margin-top:10px;"><strong>⚠️ Always set .ListIndex = 0</strong>Without this, the ComboBox shows blank on open. Set to 0 to pre-select the first item and avoid "no selection" validation errors.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S6 – Save & Validation Code ═══════════════════ -->
+<div class="slide">
+  <h2>💾 VBA Code — Validate &amp; Save to Sheet</h2>
+<div class="code-block sm"><span class="kw">Private Sub</span> <span class="func">btnSave_Click</span>()
+    <span class="com">' ── STEP 1: Validate required fields ──</span>
+    <span class="kw">If</span> <span class="func">Trim</span>(txtPartName.Text) = <span class="str">""</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Part Name is required!"</span>, vbExclamation, <span class="str">"Validation Error"</span>
+        txtPartName.SetFocus : <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+    <span class="kw">If</span> cboCategory.Value = <span class="str">""</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Please select a Category!"</span>, vbExclamation, <span class="str">"Validation Error"</span>
+        cboCategory.SetFocus : <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+    <span class="kw">If</span> Not <span class="func">IsNumeric</span>(txtQty.Text) <span class="kw">Or</span> <span class="func">Trim</span>(txtQty.Text) = <span class="str">""</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Qty must be a valid number!"</span>, vbExclamation, <span class="str">"Validation Error"</span>
+        txtQty.SetFocus : <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+    <span class="kw">If</span> <span class="func">CDbl</span>(txtQty.Text) &lt; <span class="num">0</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Qty cannot be negative!"</span>, vbExclamation : <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+
+    <span class="com">' ── STEP 2: Find next empty row ──</span>
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = ThisWorkbook.Sheets(<span class="str">"Database"</span>)
+    <span class="kw">Dim</span> nRow <span class="kw">As</span> <span class="type">Long</span>
+    nRow = ws.Cells(ws.Rows.Count, <span class="num">1</span>).End(xlUp).Row + <span class="num">1</span>
+
+    <span class="com">' ── STEP 3: Write all fields ──</span>
+    Application.ScreenUpdating = <span class="kw">False</span>
+    ws.Cells(nRow, <span class="num">1</span>).Value  = txtPartID.Text         <span class="com">' A: Part ID</span>
+    ws.Cells(nRow, <span class="num">2</span>).Value  = txtPartName.Text        <span class="com">' B: Part Name</span>
+    ws.Cells(nRow, <span class="num">3</span>).Value  = cboCategory.Value       <span class="com">' C: Category</span>
+    ws.Cells(nRow, <span class="num">4</span>).Value  = <span class="func">CLng</span>(txtQty.Text)        <span class="com">' D: Qty</span>
+    ws.Cells(nRow, <span class="num">5</span>).Value  = <span class="func">CDbl</span>(txtPrice.Text)      <span class="com">' E: Price</span>
+    ws.Cells(nRow, <span class="num">6</span>).Value  = cboSupplier.Value       <span class="com">' F: Supplier</span>
+    ws.Cells(nRow, <span class="num">7</span>).Value  = <span class="func">IIf</span>(txtReorder.Text &lt;&gt; <span class="str">""</span>, <span class="func">CLng</span>(txtReorder.Text), <span class="num">0</span>)
+    ws.Cells(nRow, <span class="num">8</span>).Value  = cboStatus.Value          <span class="com">' H: Status</span>
+    ws.Cells(nRow, <span class="num">9</span>).Value  = <span class="func">Now</span>()                    <span class="com">' I: Timestamp</span>
+    ws.Cells(nRow, <span class="num">10</span>).Value = Environ(<span class="str">"USERNAME"</span>)       <span class="com">' J: Windows user</span>
+    ws.Cells(nRow, <span class="num">11</span>).Value = txtRemarks.Text          <span class="com">' K: Remarks</span>
+    ws.Cells(nRow, <span class="num">12</span>).Value = <span class="str">""</span>                        <span class="com">' L: Synced = blank (not yet)</span>
+    Application.ScreenUpdating = <span class="kw">True</span>
+
+    <span class="com">' ── STEP 4: Confirm & refresh ──</span>
+    <span class="func">MsgBox</span> <span class="str">"✅ Part ID "</span> &amp; txtPartID.Text &amp; <span class="str">" saved!"</span>, vbInformation, <span class="str">"Saved"</span>
+    <span class="func">Call</span> <span class="func">ClearForm</span>
+    <span class="func">Call</span> <span class="func">UserForm_Initialize</span>  <span class="com">' Refresh ID and counters</span>
+<span class="kw">End Sub</span>
+
+<span class="kw">Private Sub</span> <span class="func">ClearForm</span>()
+    txtPartName.Text = <span class="str">""</span> : txtQty.Text = <span class="str">""</span>
+    txtPrice.Text = <span class="str">""</span>  : txtRemarks.Text = <span class="str">""</span>
+    txtReorder.Text = <span class="str">""</span> : cboCategory.ListIndex = -<span class="num">1</span>
+    cboSupplier.ListIndex = -<span class="num">1</span> : cboStatus.ListIndex = <span class="num">0</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- ═══════════════════ S7 – Search & Update Scattered Data ═══════════════════ -->
+<div class="slide">
+  <h2>🔍 Search &amp; Update Scattered Records</h2>
+  <p style="font-size:.88em;margin-bottom:6px;">The Search tab lets you find a record by Part ID or Name, load it into the form, edit it, and write updates back — including updating <b>every matching row</b> across the sheet.</p>
+  <div class="two-col">
+    <div>
+<div class="code-block sm"><span class="com">' ── Search by Part ID or Name ──</span>
+<span class="kw">Private Sub</span> <span class="func">btnSearch_Click</span>()
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = ThisWorkbook.Sheets(<span class="str">"Database"</span>)
+    <span class="kw">Dim</span> searchVal <span class="kw">As</span> <span class="type">String</span>
+    searchVal = <span class="func">Trim</span>(txtSearch.Text)
+    <span class="kw">If</span> searchVal = <span class="str">""</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Enter a Part ID or Name to search."</span>, vbInformation
+        <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+
+    <span class="com">' Use Excel's Find method (faster than loop)</span>
+    <span class="kw">Dim</span> foundCell <span class="kw">As</span> <span class="type">Range</span>
+    <span class="kw">Set</span> foundCell = ws.Columns(<span class="num">1</span>).Find( _
+        What:=searchVal, LookIn:=xlValues, _
+        LookAt:=xlWhole, MatchCase:=<span class="kw">False</span>)
+
+    <span class="com">' Try column B (Part Name) if not in A</span>
+    <span class="kw">If</span> foundCell <span class="kw">Is Nothing</span> <span class="kw">Then</span>
+        <span class="kw">Set</span> foundCell = ws.Columns(<span class="num">2</span>).Find( _
+            What:=searchVal, LookIn:=xlValues, _
+            LookAt:=xlPart, MatchCase:=<span class="kw">False</span>)
+    <span class="kw">End If</span>
+
+    <span class="kw">If</span> foundCell <span class="kw">Is Nothing</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"No match found for: "</span> &amp; searchVal, vbExclamation
+        <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+
+    <span class="com">' ── Load record into the form fields ──</span>
+    <span class="kw">Dim</span> r <span class="kw">As</span> <span class="type">Long</span>
+    r = foundCell.Row
+    txtPartID.Text   = ws.Cells(r, <span class="num">1</span>).Value
+    txtPartName.Text = ws.Cells(r, <span class="num">2</span>).Value
+    cboCategory.Value = ws.Cells(r, <span class="num">3</span>).Value
+    txtQty.Text      = ws.Cells(r, <span class="num">4</span>).Value
+    txtPrice.Text    = ws.Cells(r, <span class="num">5</span>).Value
+    cboSupplier.Value = ws.Cells(r, <span class="num">6</span>).Value
+    txtReorder.Text  = ws.Cells(r, <span class="num">7</span>).Value
+    cboStatus.Value  = ws.Cells(r, <span class="num">8</span>).Value
+    txtRemarks.Text  = ws.Cells(r, <span class="num">11</span>).Value
+
+    <span class="com">' Store row number for the Update button</span>
+    lblFoundRow.Tag = r
+    lblStatus.Caption = <span class="str">"Found: Row "</span> &amp; r &amp; <span class="str">" — edit &amp; click Update"</span>
+<span class="kw">End Sub</span></div>
+    </div>
+    <div>
+<div class="code-block sm"><span class="com">' ── Update SCATTERED matching records ──
+' Use case: supplier name changed company-wide,
+' update ALL rows with the old supplier name</span>
+<span class="kw">Sub</span> <span class="func">UpdateScatteredRecords</span>( _
+    oldSupplier <span class="kw">As</span> <span class="type">String</span>, _
+    newSupplier <span class="kw">As</span> <span class="type">String</span>)
+
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = ThisWorkbook.Sheets(<span class="str">"Database"</span>)
+    <span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+    lastRow = ws.Cells(ws.Rows.Count,<span class="num">1</span>).End(xlUp).Row
+
+    <span class="kw">Dim</span> updCount <span class="kw">As</span> <span class="type">Long</span>
+    updCount = <span class="num">0</span>
+    Application.ScreenUpdating = <span class="kw">False</span>
+
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> lastRow
+        <span class="kw">If</span> <span class="func">UCase</span>(ws.Cells(i,<span class="num">6</span>).Value) = <span class="func">UCase</span>(oldSupplier) <span class="kw">Then</span>
+            ws.Cells(i,<span class="num">6</span>).Value  = newSupplier
+            ws.Cells(i,<span class="num">9</span>).Value  = <span class="func">Now</span>()   <span class="com">' Update timestamp</span>
+            ws.Cells(i,<span class="num">10</span>).Value = Environ(<span class="str">"USERNAME"</span>)
+            ws.Cells(i,<span class="num">12</span>).Value = <span class="str">""</span>       <span class="com">' Mark as unsynced</span>
+            updCount = updCount + <span class="num">1</span>
+        <span class="kw">End If</span>
+    <span class="kw">Next</span> i
+
+    Application.ScreenUpdating = <span class="kw">True</span>
+    <span class="func">MsgBox</span> updCount &amp; <span class="str">" records updated from '"</span> _
+        &amp; oldSupplier &amp; <span class="str">"' → '"</span> &amp; newSupplier &amp; <span class="str">"'"</span>, _
+        vbInformation, <span class="str">"Batch Update Complete"</span>
+<span class="kw">End Sub</span>
+
+<span class="com">' ── How to call from the form ──</span>
+<span class="kw">Private Sub</span> <span class="func">btnBatchUpdate_Click</span>()
+    <span class="kw">Dim</span> oldVal <span class="kw">As</span> <span class="type">String</span>, newVal <span class="kw">As</span> <span class="type">String</span>
+    oldVal = <span class="func">InputBox</span>(<span class="str">"Enter OLD supplier name:"</span>)
+    <span class="kw">If</span> oldVal = <span class="str">""</span> <span class="kw">Then</span> <span class="kw">Exit Sub</span>
+    newVal = <span class="func">InputBox</span>(<span class="str">"Enter NEW supplier name:"</span>)
+    <span class="kw">If</span> newVal = <span class="str">""</span> <span class="kw">Then</span> <span class="kw">Exit Sub</span>
+    <span class="func">Call</span> <span class="func">UpdateScatteredRecords</span>(oldVal, newVal)
+<span class="kw">End Sub</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S8 – Cross-Workbook Copy ═══════════════════ -->
+<div class="slide">
+  <h2>📤 Cross-Workbook Data Transfer — Copy to MasterDB</h2>
+  <p style="font-size:.88em;margin-bottom:6px;">This is the <b>Sync tab</b> workflow — copy all <i>unsynced</i> rows (Column L = blank) from Inventory.xlsm into MasterDB.xlsx and mark them as synced.</p>
+<div class="code-block sm"><span class="com">' ═══════════════════════════════════════════════════════════
+' SyncToMasterDB — copy new rows to the central database file
+' ═══════════════════════════════════════════════════════════</span>
+<span class="kw">Sub</span> <span class="func">SyncToMasterDB</span>()
+    <span class="kw">Dim</span> masterPath <span class="kw">As</span> <span class="type">String</span>
+    masterPath = ThisWorkbook.Path &amp; <span class="str">"\MasterDB.xlsx"</span>
+
+    <span class="com">' ── Check the file exists ──</span>
+    <span class="kw">If</span> <span class="func">Dir</span>(masterPath) = <span class="str">""</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"MasterDB.xlsx not found at: "</span> &amp; masterPath, vbCritical
+        <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+
+    <span class="com">' ── Open MasterDB (hidden) ──</span>
+    Application.ScreenUpdating = <span class="kw">False</span>
+    Application.DisplayAlerts = <span class="kw">False</span>
+    <span class="kw">Dim</span> wbMaster <span class="kw">As</span> <span class="type">Workbook</span>
+    <span class="kw">Set</span> wbMaster = Workbooks.Open(masterPath, ReadOnly:=<span class="kw">False</span>)
+
+    <span class="kw">Dim</span> wsSrc  <span class="kw">As</span> <span class="type">Worksheet</span>  <span class="com">' Source: local Database sheet</span>
+    <span class="kw">Dim</span> wsDst  <span class="kw">As</span> <span class="type">Worksheet</span>  <span class="com">' Destination: MasterDB sheet</span>
+    <span class="kw">Set</span> wsSrc = ThisWorkbook.Sheets(<span class="str">"Database"</span>)
+    <span class="kw">Set</span> wsDst = wbMaster.Sheets(<span class="str">"MasterDB"</span>)
+
+    <span class="kw">Dim</span> srcLast <span class="kw">As</span> <span class="type">Long</span>
+    srcLast = wsSrc.Cells(wsSrc.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    <span class="kw">Dim</span> dstNext <span class="kw">As</span> <span class="type">Long</span>
+    dstNext = wsDst.Cells(wsDst.Rows.Count, <span class="num">1</span>).End(xlUp).Row + <span class="num">1</span>
+
+    <span class="kw">Dim</span> copyCount <span class="kw">As</span> <span class="type">Long</span>
+    copyCount = <span class="num">0</span>
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+
+    <span class="com">' ── Loop: copy only rows where Col L = "" (not yet synced) ──</span>
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> srcLast
+        <span class="kw">If</span> <span class="func">Trim</span>(wsSrc.Cells(i, <span class="num">12</span>).Value) = <span class="str">""</span> <span class="kw">Then</span>
+            <span class="com">' Copy entire row (columns A:K) using array for speed</span>
+            <span class="kw">Dim</span> rowData <span class="kw">As</span> <span class="type">Variant</span>
+            rowData = wsSrc.Range(wsSrc.Cells(i, <span class="num">1</span>), wsSrc.Cells(i, <span class="num">11</span>)).Value
+            wsDst.Range(wsDst.Cells(dstNext, <span class="num">1</span>), wsDst.Cells(dstNext, <span class="num">11</span>)).Value = rowData
+
+            <span class="com">' Mark source row as synced with date</span>
+            wsSrc.Cells(i, <span class="num">12</span>).Value = <span class="str">"Synced "</span> &amp; Format(<span class="func">Now</span>(), <span class="str">"yyyy-mm-dd hh:mm"</span>)
+            dstNext = dstNext + <span class="num">1</span>
+            copyCount = copyCount + <span class="num">1</span>
+        <span class="kw">End If</span>
+    <span class="kw">Next</span> i
+
+    <span class="com">' ── Save and close MasterDB ──</span>
+    wbMaster.Save
+    wbMaster.Close
+    Application.ScreenUpdating = <span class="kw">True</span>
+    Application.DisplayAlerts = <span class="kw">True</span>
+
+    <span class="func">MsgBox</span> copyCount &amp; <span class="str">" new record(s) synced to MasterDB.xlsx!"</span>, _
+        vbInformation, <span class="str">"Sync Complete"</span>
+    lblStatus.Caption = <span class="str">"Last sync: "</span> &amp; Format(<span class="func">Now</span>(), <span class="str">"yyyy-mm-dd hh:mm"</span>)
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- ═══════════════════ S9 – Import from Another Workbook ═══════════════════ -->
+<div class="slide">
+  <h2>📥 Import Data FROM Another Workbook</h2>
+  <p style="font-size:.88em;margin-bottom:6px;">Let users pick any Excel file and pull selected data into the local Database — handles files that may not be open.</p>
+  <div class="two-col">
+    <div>
+<div class="code-block sm"><span class="com">' ── Let user browse for a file ──</span>
+<span class="kw">Sub</span> <span class="func">ImportFromFile</span>()
+    <span class="kw">Dim</span> importPath <span class="kw">As</span> <span class="type">String</span>
+    importPath = Application.GetOpenFilename( _
+        FileFilter:=<span class="str">"Excel Files (*.xlsx;*.xlsm), *.xlsx;*.xlsm"</span>, _
+        Title:=<span class="str">"Select Source Workbook"</span>)
+    <span class="kw">If</span> importPath = <span class="str">"False"</span> <span class="kw">Then</span> <span class="kw">Exit Sub</span>  <span class="com">' User cancelled</span>
+
+    Application.ScreenUpdating = <span class="kw">False</span>
+    <span class="kw">Dim</span> wbSrc <span class="kw">As</span> <span class="type">Workbook</span>
+    <span class="kw">Set</span> wbSrc = Workbooks.Open(importPath, ReadOnly:=<span class="kw">True</span>)
+
+    <span class="kw">Dim</span> wsImport <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> wsImport = wbSrc.Sheets(<span class="num">1</span>)  <span class="com">' First sheet</span>
+    <span class="kw">Dim</span> wsDst <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> wsDst = ThisWorkbook.Sheets(<span class="str">"Database"</span>)
+
+    <span class="kw">Dim</span> srcLast <span class="kw">As</span> <span class="type">Long</span>
+    srcLast = wsImport.Cells(wsImport.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+
+    <span class="kw">Dim</span> dstNext <span class="kw">As</span> <span class="type">Long</span>
+    dstNext = wsDst.Cells(wsDst.Rows.Count, <span class="num">1</span>).End(xlUp).Row + <span class="num">1</span>
+
+    <span class="kw">Dim</span> importCount <span class="kw">As</span> <span class="type">Long</span> : importCount = <span class="num">0</span>
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+
+    <span class="com">' ── Copy rows, skip if Part ID already exists ──</span>
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> srcLast
+        <span class="kw">Dim</span> partID <span class="kw">As</span> <span class="type">String</span>
+        partID = <span class="func">Trim</span>(wsImport.Cells(i, <span class="num">1</span>).Value)
+        <span class="kw">If</span> partID = <span class="str">""</span> <span class="kw">Then</span> <span class="kw">GoTo</span> NextRow
+
+        <span class="com">' Check for duplicate in destination</span>
+        <span class="kw">Dim</span> dupCheck <span class="kw">As</span> <span class="type">Range</span>
+        <span class="kw">Set</span> dupCheck = wsDst.Columns(<span class="num">1</span>).Find(partID, LookAt:=xlWhole)
+        <span class="kw">If</span> Not dupCheck <span class="kw">Is Nothing</span> <span class="kw">Then</span> <span class="kw">GoTo</span> NextRow  <span class="com">' Skip duplicates</span>
+
+        <span class="com">' Copy the row data</span>
+        wsDst.Cells(dstNext, <span class="num">1</span>).Resize(<span class="num">1</span>, <span class="num">11</span>).Value = _
+            wsImport.Cells(i, <span class="num">1</span>).Resize(<span class="num">1</span>, <span class="num">11</span>).Value
+        wsDst.Cells(dstNext, <span class="num">12</span>).Value = <span class="str">""</span>  <span class="com">' Mark unsynced</span>
+        dstNext = dstNext + <span class="num">1</span>
+        importCount = importCount + <span class="num">1</span>
+NextRow:
+    <span class="kw">Next</span> i
+
+    wbSrc.Close SaveChanges:=<span class="kw">False</span>
+    Application.ScreenUpdating = <span class="kw">True</span>
+    <span class="func">MsgBox</span> importCount &amp; <span class="str">" new records imported (duplicates skipped)."</span>, _
+        vbInformation, <span class="str">"Import Complete"</span>
+<span class="kw">End Sub</span></div>
+    </div>
+    <div>
+      <h3>Key Techniques Used</h3>
+      <div class="card" style="margin-bottom:8px;font-size:.86em;">
+        <b style="color:var(--accent);">GetOpenFilename</b><br>
+        Shows the standard Windows file browser. Returns the selected path as a string, or the string "False" if cancelled. Always check for cancellation!
+      </div>
+      <div class="card" style="margin-bottom:8px;font-size:.86em;">
+        <b style="color:var(--accent);">ReadOnly:=True</b><br>
+        Opens the source file without locking it for others. Always open source files in ReadOnly mode — close them with <code>SaveChanges:=False</code>.
+      </div>
+      <div class="card" style="margin-bottom:8px;font-size:.86em;">
+        <b style="color:var(--accent);">Duplicate Detection</b><br>
+        Before copying, use <code>Find</code> on Column A to check if the Part ID already exists. This prevents importing the same data twice.
+      </div>
+      <div class="callout warn" style="font-size:.85em;"><strong>⚠️ Always close opened workbooks</strong>Use <code>wbSrc.Close SaveChanges:=False</code> even if an error occurs. Add error handling with <code>On Error GoTo CleanUp</code> and put the Close in the CleanUp label.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S10 – Auto Summary Generator ═══════════════════ -->
+<div class="slide">
+  <h2>📊 Auto-Generate Summary Report</h2>
+  <p style="font-size:.88em;margin-bottom:6px;">One click rebuilds the Summary sheet — total stock value, items by category, and low-stock alerts.</p>
+<div class="code-block sm"><span class="com">' ═══════════════════════════════════════════════════════
+' GenerateSummary — clears and rebuilds the Summary sheet
+' ═══════════════════════════════════════════════════════</span>
+<span class="kw">Sub</span> <span class="func">GenerateSummary</span>()
+    <span class="kw">Dim</span> wsDB  <span class="kw">As</span> <span class="type">Worksheet</span> : <span class="kw">Set</span> wsDB  = ThisWorkbook.Sheets(<span class="str">"Database"</span>)
+    <span class="kw">Dim</span> wsSum <span class="kw">As</span> <span class="type">Worksheet</span> : <span class="kw">Set</span> wsSum = ThisWorkbook.Sheets(<span class="str">"Summary"</span>)
+    Application.ScreenUpdating = <span class="kw">False</span>
+
+    <span class="com">' ── Clear old summary ──</span>
+    wsSum.Cells.Clear
+
+    <span class="com">' ── Write headers ──</span>
+    wsSum.Range(<span class="str">"A1"</span>).Value = <span class="str">"Parts Inventory Summary"</span>
+    wsSum.Range(<span class="str">"A1"</span>).Font.Bold = <span class="kw">True</span>
+    wsSum.Range(<span class="str">"A1"</span>).Font.Size = <span class="num">14</span>
+    wsSum.Range(<span class="str">"A2"</span>).Value = <span class="str">"Generated: "</span> &amp; Format(<span class="func">Now</span>(), <span class="str">"yyyy-mm-dd hh:mm"</span>)
+    wsSum.Range(<span class="str">"A2"</span>).Font.Color = RGB(<span class="num">100</span>, <span class="num">100</span>, <span class="num">100</span>)
+
+    <span class="com">' ── KPI block ──</span>
+    <span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+    lastRow = wsDB.Cells(wsDB.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    <span class="kw">Dim</span> totalItems <span class="kw">As</span> <span class="type">Long</span>
+    totalItems = lastRow - <span class="num">1</span>  <span class="com">' Exclude header row</span>
+    <span class="kw">Dim</span> totalValue <span class="kw">As</span> <span class="type">Double</span>
+    totalValue = Application.WorksheetFunction.SumProduct( _
+        wsDB.Range(<span class="str">"D2:D"</span> &amp; lastRow), wsDB.Range(<span class="str">"E2:E"</span> &amp; lastRow))
+
+    wsSum.Range(<span class="str">"A4"</span>).Value = <span class="str">"Total SKUs"</span>
+    wsSum.Range(<span class="str">"B4"</span>).Value = totalItems
+    wsSum.Range(<span class="str">"A5"</span>).Value = <span class="str">"Total Stock Value (¥)"</span>
+    wsSum.Range(<span class="str">"B5"</span>).Value = totalValue
+    wsSum.Range(<span class="str">"B5"</span>).NumberFormat = <span class="str">"¥#,##0"</span>
+
+    <span class="com">' ── Category breakdown using Dictionary ──</span>
+    <span class="kw">Dim</span> dict <span class="kw">As</span> Object
+    <span class="kw">Set</span> dict = CreateObject(<span class="str">"Scripting.Dictionary"</span>)
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> lastRow
+        <span class="kw">Dim</span> cat <span class="kw">As</span> <span class="type">String</span>
+        cat = ws<span class="func">DB</span>.Cells(i, <span class="num">3</span>).Value
+        <span class="kw">If</span> cat &lt;&gt; <span class="str">""</span> <span class="kw">Then</span>
+            dict(cat) = dict(cat) + wsDB.Cells(i, <span class="num">4</span>).Value  <span class="com">' Sum qty</span>
+        <span class="kw">End If</span>
+    <span class="kw">Next</span> i
+
+    wsSum.Range(<span class="str">"A7"</span>).Value = <span class="str">"Category"</span>   : wsSum.Range(<span class="str">"A7"</span>).Font.Bold = <span class="kw">True</span>
+    wsSum.Range(<span class="str">"B7"</span>).Value = <span class="str">"Total Qty"</span>  : wsSum.Range(<span class="str">"B7"</span>).Font.Bold = <span class="kw">True</span>
+    <span class="kw">Dim</span> r <span class="kw">As</span> <span class="type">Long</span> : r = <span class="num">8</span>
+    <span class="kw">Dim</span> key <span class="kw">As</span> <span class="type">Variant</span>
+    <span class="kw">For Each</span> key <span class="kw">In</span> dict.Keys
+        wsSum.Cells(r, <span class="num">1</span>).Value = key
+        wsSum.Cells(r, <span class="num">2</span>).Value = dict(key)
+        r = r + <span class="num">1</span>
+    <span class="kw">Next</span> key
+
+    <span class="com">' ── Low stock alerts (Qty &lt; Reorder Point) ──</span>
+    wsSum.Cells(r + <span class="num">1</span>, <span class="num">1</span>).Value = <span class="str">"⚠️ LOW STOCK ALERTS"</span>
+    wsSum.Cells(r + <span class="num">1</span>, <span class="num">1</span>).Font.Bold = <span class="kw">True</span>
+    wsSum.Cells(r + <span class="num">1</span>, <span class="num">1</span>).Font.Color = RGB(<span class="num">198</span>, <span class="num">40</span>, <span class="num">40</span>)
+    <span class="kw">Dim</span> alertRow <span class="kw">As</span> <span class="type">Long</span> : alertRow = r + <span class="num">2</span>
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> lastRow
+        <span class="kw">If</span> wsDB.Cells(i,<span class="num">4</span>).Value &lt; wsDB.Cells(i,<span class="num">7</span>).Value <span class="kw">Then</span>  <span class="com">' Qty &lt; ReorderPt</span>
+            wsSum.Cells(alertRow, <span class="num">1</span>).Value = wsDB.Cells(i,<span class="num">1</span>).Value  <span class="com">' Part ID</span>
+            wsSum.Cells(alertRow, <span class="num">2</span>).Value = wsDB.Cells(i,<span class="num">2</span>).Value  <span class="com">' Name</span>
+            wsSum.Cells(alertRow, <span class="num">3</span>).Value = wsDB.Cells(i,<span class="num">4</span>).Value  <span class="com">' Current Qty</span>
+            wsSum.Cells(alertRow, <span class="num">4</span>).Value = wsDB.Cells(i,<span class="num">7</span>).Value  <span class="com">' Reorder Pt</span>
+            wsSum.Cells(alertRow, <span class="num">1</span>).Font.Color = RGB(<span class="num">198</span>, <span class="num">40</span>, <span class="num">40</span>)
+            alertRow = alertRow + <span class="num">1</span>
+        <span class="kw">End If</span>
+    <span class="kw">Next</span> i
+
+    Application.ScreenUpdating = <span class="kw">True</span>
+    <span class="func">MsgBox</span> <span class="str">"Summary sheet updated!"</span>, vbInformation
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- ═══════════════════ S11 – Archive Workflow ═══════════════════ -->
+<div class="slide">
+  <h2>📦 Archive Workflow — Move Old Records</h2>
+  <p style="font-size:.88em;margin-bottom:6px;">Move discontinued/inactive parts from Database → Archive sheet, keeping Database clean and fast.</p>
+  <div class="two-col">
+    <div>
+<div class="code-block sm"><span class="com">' ── Archive all "Discontinued" parts ──</span>
+<span class="kw">Sub</span> <span class="func">ArchiveDiscontinued</span>()
+    <span class="kw">Dim</span> wsDB  <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Dim</span> wsArc <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> wsDB  = ThisWorkbook.Sheets(<span class="str">"Database"</span>)
+    <span class="kw">Set</span> wsArc = ThisWorkbook.Sheets(<span class="str">"Archive"</span>)
+
+    <span class="kw">Dim</span> confirm <span class="kw">As</span> <span class="type">Integer</span>
+    confirm = <span class="func">MsgBox</span>(<span class="str">"Archive ALL Discontinued parts?"</span> &amp; _
+        vbCrLf &amp; <span class="str">"This will MOVE them to the Archive sheet."</span>, _
+        vbYesNo + vbQuestion, <span class="str">"Confirm Archive"</span>)
+    <span class="kw">If</span> confirm &lt;&gt; vbYes <span class="kw">Then</span> <span class="kw">Exit Sub</span>
+
+    Application.ScreenUpdating = <span class="kw">False</span>
+    <span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+    lastRow = wsDB.Cells(wsDB.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    <span class="kw">Dim</span> arcNext <span class="kw">As</span> <span class="type">Long</span>
+    arcNext = wsArc.Cells(wsArc.Rows.Count, <span class="num">1</span>).End(xlUp).Row + <span class="num">1</span>
+
+    <span class="com">' Loop BACKWARDS — safe when deleting rows!</span>
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">Dim</span> movedCount <span class="kw">As</span> <span class="type">Long</span> : movedCount = <span class="num">0</span>
+    <span class="kw">For</span> i = lastRow <span class="kw">To</span> <span class="num">2</span> <span class="kw">Step</span> -<span class="num">1</span>
+        <span class="kw">If</span> wsDB.Cells(i, <span class="num">8</span>).Value = <span class="str">"Discontinued"</span> <span class="kw">Then</span>
+            <span class="com">' Copy row to Archive</span>
+            wsDB.Rows(i).Copy wsArc.Rows(arcNext)
+            <span class="com">' Add archive timestamp in column M</span>
+            wsArc.Cells(arcNext, <span class="num">13</span>).Value = <span class="str">"Archived "</span> &amp; Format(<span class="func">Now</span>(), <span class="str">"yyyy-mm-dd"</span>)
+            <span class="com">' Delete original row from Database</span>
+            wsDB.Rows(i).Delete
+            arcNext = arcNext + <span class="num">1</span>
+            movedCount = movedCount + <span class="num">1</span>
+        <span class="kw">End If</span>
+    <span class="kw">Next</span> i
+
+    Application.ScreenUpdating = <span class="kw">True</span>
+    <span class="func">MsgBox</span> movedCount &amp; <span class="str">" part(s) archived successfully."</span>, _
+        vbInformation, <span class="str">"Archive Complete"</span>
+<span class="kw">End Sub</span></div>
+    </div>
+    <div>
+      <h3>⚠️ Critical: Loop Backwards when Deleting</h3>
+      <div class="card" style="margin-bottom:8px;font-size:.85em;">
+        <p style="color:var(--red);font-weight:700;">❌ WRONG — loops forward and skips rows:</p>
+        <code style="font-family:monospace;font-size:.88em;">For i = 2 To lastRow<br>&nbsp;&nbsp;If ... Then wsDB.Rows(i).Delete<br>Next i</code>
+        <p style="margin-top:6px;color:var(--muted);">When row 5 is deleted, row 6 becomes row 5 — the loop skips it!</p>
+      </div>
+      <div class="card" style="margin-bottom:8px;font-size:.85em;">
+        <p style="color:var(--green);font-weight:700;">✅ CORRECT — loops backward:</p>
+        <code style="font-family:monospace;font-size:.88em;">For i = lastRow To 2 Step -1<br>&nbsp;&nbsp;If ... Then wsDB.Rows(i).Delete<br>Next i</code>
+        <p style="margin-top:6px;color:var(--muted);">Deleting from the bottom up never affects the rows above that you haven't processed yet.</p>
+      </div>
+      <div class="callout success" style="font-size:.85em;"><strong>✅ Restore from Archive</strong>Build a corresponding <b>RestoreFromArchive</b> macro that reverses this — copy from Archive back to Database and delete from Archive. Same backward-loop pattern applies.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S12 – Complete Workflow Diagram ═══════════════════ -->
+<div class="slide center">
+  <h2>🗺️ Complete Automation Workflow</h2>
+  <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0;align-items:center;margin:16px 0;">
+    <div class="wf-box accent" style="text-align:center;">
+      <div class="wf-icon">🖥️</div>
+      <div class="wf-label">frmPartsEntry</div>
+      <div class="wf-sub">User fills form<br>+ validates input</div>
+    </div>
+    <div class="wf-arr">→</div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div class="wf-box blue" style="text-align:center;">
+        <div style="font-size:1.2em;">🗃️</div>
+        <div class="wf-label" style="font-size:.82em;">Database Sheet</div>
+        <div class="wf-sub">New row appended</div>
+      </div>
+      <div class="wf-box" style="text-align:center;border-color:#8e44ad;background:#f5f3ff;">
+        <div style="font-size:1.2em;">📊</div>
+        <div class="wf-label" style="font-size:.82em;">Summary Sheet</div>
+        <div class="wf-sub">Rebuilt on demand</div>
+      </div>
+      <div class="wf-box" style="text-align:center;border-color:#c62828;background:#fff5f5;">
+        <div style="font-size:1.2em;">📦</div>
+        <div class="wf-label" style="font-size:.82em;">Archive Sheet</div>
+        <div class="wf-sub">Discontinued moved</div>
+      </div>
+    </div>
+    <div class="wf-arr">→</div>
+    <div class="wf-box green" style="text-align:center;">
+      <div class="wf-icon">🗄️</div>
+      <div class="wf-label">MasterDB.xlsx</div>
+      <div class="wf-sub">Unsynced rows<br>pushed on Sync click</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:8px;">
+    <div class="card" style="font-size:.82em;text-align:center;border-top:4px solid var(--accent);">
+      <div style="font-size:1.4em;margin-bottom:4px;">📝</div>
+      <b>Data Entry</b><br>
+      <span style="color:var(--muted);">Form validates → btnSave_Click → writes row to Database</span>
+    </div>
+    <div class="card" style="font-size:.82em;text-align:center;border-top:4px solid #3b82f6;">
+      <div style="font-size:1.4em;margin-bottom:4px;">🔍</div>
+      <b>Search &amp; Update</b><br>
+      <span style="color:var(--muted);">Find by ID/Name → load into form → edit → Update row in place</span>
+    </div>
+    <div class="card" style="font-size:.82em;text-align:center;border-top:4px solid #8e44ad;">
+      <div style="font-size:1.4em;margin-bottom:4px;">🔄</div>
+      <b>Scattered Update</b><br>
+      <span style="color:var(--muted);">Loop all rows → match condition → update field → log timestamp</span>
+    </div>
+    <div class="card" style="font-size:.82em;text-align:center;border-top:4px solid var(--green);">
+      <div style="font-size:1.4em;margin-bottom:4px;">📤</div>
+      <b>Cross-Book Sync</b><br>
+      <span style="color:var(--muted);">Open MasterDB → copy unsynced rows → mark Synced → save &amp; close</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ S13 – Quiz ═══════════════════ -->
+<div class="slide">
+  <h2>🎯 Module 13 Quiz</h2>
+  <div class="quiz-q">Q1: When looping through rows to delete some of them, which direction should you loop?</div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Looping forward causes rows to be skipped because row indices shift down after each deletion.')">Forward (For i = 2 To lastRow)</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'✅ Correct! Looping backward (Step -1) ensures row deletion never affects the rows above that you haven\'t processed yet.')">Backward (For i = lastRow To 2 Step -1)</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Looping forward causes rows to be skipped because row indices shift down after each deletion.')">Either direction — it doesn't matter</div>
+  </div>
+  <div id="q1fb"></div>
+  <br>
+  <div class="quiz-q">Q2: When opening a source workbook to copy data FROM it, what parameter should you set?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'ReadOnly:=True prevents the file from being locked and protects it from accidental changes.')">ReadOnly:=False</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'✅ Correct! ReadOnly:=True opens the file without locking it and prevents accidental saves.')">ReadOnly:=True</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'ReadOnly:=True prevents the file from being locked and protects it from accidental changes.')">UpdateLinks:=False only</div>
+  </div>
+  <div id="q2fb"></div>
+  <br>
+  <div class="quiz-q">Q3: How do you prevent the same record from being synced to MasterDB twice?</div>
+  <div id="q3opts">
+    <div class="quiz-opt" onclick="checkQ('q3opts',this,false,'A "Synced" flag in a dedicated column is the standard approach — simple and reliable.')">Delete the row after copying it</div>
+    <div class="quiz-opt" onclick="checkQ('q3opts',this,false,'A "Synced" flag in a dedicated column is the standard approach — simple and reliable.')">Open MasterDB in ReadOnly mode</div>
+    <div class="quiz-opt" onclick="checkQ('q3opts',this,true,'✅ Correct! Writing a "Synced" timestamp to Column L marks the row so the sync loop skips it next time.')">Write a "Synced" flag/timestamp in a column after copying</div>
+  </div>
+  <div id="q3fb"></div>
+</div>
+
+<!-- ═══════════════════ S14 – Summary ═══════════════════ -->
+<div class="slide title-slide">
+  <div class="big-icon">🎉</div>
+  <h1>Module 13 <span>Complete!</span></h1>
+  <div class="card" style="text-align:left;max-width:620px;margin-top:20px;">
+    <h3>📋 Key Takeaways</h3>
+    <ul style="list-style:none;">
+      <li style="padding:6px 0 6px 26px;position:relative;border-bottom:1px solid var(--border);"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Auto Part ID</b> — count existing rows + 1, format as "YMH-NNN", disable the TextBox</li>
+      <li style="padding:6px 0 6px 26px;position:relative;border-bottom:1px solid var(--border);"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Validate ALL inputs</b> before writing — check blank, numeric, and range conditions</li>
+      <li style="padding:6px 0 6px 26px;position:relative;border-bottom:1px solid var(--border);"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Scattered update</b> — loop all rows, check condition, update fields + timestamp</li>
+      <li style="padding:6px 0 6px 26px;position:relative;border-bottom:1px solid var(--border);"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Cross-workbook sync</b> — Open → copy unsynced rows → mark synced → Save → Close</li>
+      <li style="padding:6px 0 6px 26px;position:relative;border-bottom:1px solid var(--border);"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Import with GetOpenFilename</b> — always ReadOnly, skip duplicates, close on finish</li>
+      <li style="padding:6px 0 6px 26px;position:relative;border-bottom:1px solid var(--border);"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Summary with Dictionary</b> — group-by-category using Scripting.Dictionary</li>
+      <li style="padding:6px 0 6px 26px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Archive = loop BACKWARD</b> — always Step -1 when deleting rows inside a loop</li>
+    </ul>
+  </div>
+  <p style="margin-top:16px;color:var(--muted);">Congratulations — you can now build end-to-end VBA automation systems!</p>
+</div>
+
+</div><!-- scontainer -->
+
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div><!-- app -->
+
+<div id="np">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--accent);">📝 Notes – M13</b><button class="btn btn-g" style="padding:2px 8px;" onclick="toggleNotes()">✕</button></div>
+  <textarea id="na" placeholder="Notes..."></textarea>
+  <button class="btn btn-a" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+
+<script>
+const slides=[...document.querySelectorAll('.slide')];
+let cur=0;
+const total=slides.length;
+document.getElementById('tn').textContent=total;
+
+function show(n){
+  slides[cur].classList.remove('active');
+  cur=Math.max(0,Math.min(n,total-1));
+  slides[cur].classList.add('active');
+  document.getElementById('cn').textContent=cur+1;
+  document.getElementById('pf').style.width=((cur+1)/total*100)+'%';
+  document.getElementById('prevBtn').disabled=(cur===0);
+  const nb=document.getElementById('nextBtn');
+  if(cur===total-1){nb.textContent='✓ Complete';nb.classList.add('done');}
+  else{nb.textContent='Next ▶';nb.classList.remove('done');}
+}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}
+function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')next();
+  if(e.key==='ArrowLeft')prev();
+});
+
+function checkQ(id,el,ok,msg){
+  document.querySelectorAll('#'+id+' .quiz-opt').forEach(o=>o.style.pointerEvents='none');
+  el.classList.add(ok?'correct':'wrong');
+  const fbId=id.replace('opts','fb');
+  document.getElementById(fbId).innerHTML=
+    `<div class="feedback ${ok?'ok':'bad'}">${ok?'✅':'❌'} ${msg}</div>`;
+}
+function toggleNotes(){document.getElementById('np').classList.toggle('show');}
+function saveNotes(){localStorage.setItem('vba_notes_13',document.getElementById('na').value);alert('Notes saved!');}
+document.getElementById('na').value=localStorage.getItem('vba_notes_13')||'';
+</script>
+</body>
+</html>

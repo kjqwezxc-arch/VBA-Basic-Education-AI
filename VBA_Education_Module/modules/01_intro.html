@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 01 – Introduction to VBA</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#16a34a;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;--primary:#2563eb;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+/* Header */
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}
+.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+/* Progress */
+.pbar{background:#e2e8f0;}
+.pfill{height:4px;background:var(--accent);transition:width .35s ease;}
+/* Slides */
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:48px 72px;display:none;overflow-y:auto;flex-direction:column;justify-content:center;}
+.slide.active{display:flex;animation:fadeUp .35s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+/* Title slide */
+.slide.title-slide{text-align:center;align-items:center;background:radial-gradient(ellipse at 50% 30%,#1a237e22 0%,transparent 70%);}
+.big-icon{font-size:5em;margin-bottom:16px;animation:bounce 2s infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+h1{font-size:2.6em;line-height:1.2;margin-bottom:12px;}
+h1 span{color:var(--accent);}
+h2{font-size:1.7em;margin-bottom:12px;color:var(--accent);}
+h3{font-size:1.25em;color:var(--accent);margin-bottom:8px;}
+p{line-height:1.75;margin-bottom:12px;font-size:1.02em;}
+.subtitle{color:var(--muted);font-size:1.15em;max-width:600px;}
+/* Content */
+.bullets{list-style:none;margin:12px 0;}
+.bullets li{padding:9px 0 9px 32px;position:relative;font-size:1.04em;line-height:1.6;}
+.bullets li::before{content:'▶';color:var(--accent);position:absolute;left:0;font-size:.75em;top:12px;}
+.bullets li b{color:var(--accent);}
+/* Callouts */
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:14px 20px;border-radius:0 10px 10px 0;margin:14px 0;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout.tip{border-color:#ce93d8;background:rgba(206,147,216,.12);}
+.callout strong{display:block;margin-bottom:4px;}
+/* 2-col */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:16px 0;}
+/* Cards */
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:18px;margin:8px 0;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.card-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0;}
+.small-card{background:var(--card);border:1.5px solid var(--border);border-radius:8px;padding:14px;text-align:center;}
+.small-card .ico{font-size:2em;margin-bottom:6px;}
+.small-card p{font-size:.9em;color:var(--muted);margin:0;}
+/* Code block */
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:20px;font-family:'Cascadia Code','Consolas',monospace;font-size:.93em;white-space:pre;overflow-x:auto;margin:16px 0;line-height:1.65;color:#d4d4d4;}
+.code-block .ln{color:#444;user-select:none;margin-right:12px;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}.op{color:#d4d4d4;}
+/* Demo animation */
+.demo-box{background:#f1f5f9;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:16px 0;}
+.demo-title{background:#e2e8f0;padding:8px 16px;font-size:.85em;color:var(--muted);border-bottom:1px solid var(--border);}
+.demo-code-area{padding:16px 20px;font-family:'Cascadia Code','Consolas',monospace;font-size:.88em;min-height:120px;line-height:1.7;color:var(--text);}
+.demo-output{padding:10px 20px;border-top:1px solid var(--border);color:#0d7a5f;font-size:.88em;background:#e8f5f0;}
+.demo-box .kw{color:#0070c1;}.demo-box .str{color:#a31515;}.demo-box .com{color:#008000;}.demo-box .num{color:#098658;}.demo-box .func{color:#795e26;}.demo-box .type{color:#267f99;}
+.demo-controls{padding:8px 16px;background:#f8fafc;border-top:1px solid var(--border);display:flex;gap:8px;}
+.btn{padding:7px 18px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;transition:all .2s;}
+.btn-accent{background:var(--accent);color:#000;}.btn-accent:hover{background:#ffa000;}
+.btn-gray{background:#e2e8f0;color:var(--text);}.btn-gray:hover{background:#cbd5e1;}
+/* Steps */
+.step-list{counter-reset:step;margin:12px 0;}
+.step{display:flex;gap:14px;margin:12px 0;align-items:flex-start;}
+.step-num{background:var(--accent);color:#000;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.9em;}
+.step-content{flex:1;padding-top:4px;}
+/* Tags */
+.tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:.8em;margin:2px;font-weight:600;}
+.tag-green{background:rgba(76,175,80,.2);color:#4caf50;}
+.tag-blue{background:rgba(100,181,246,.2);color:#64b5f6;}
+.tag-orange{background:rgba(255,143,0,.2);color:#ff8f00;}
+/* Table */
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:.94em;}
+th{background:var(--primary);color:#fff;padding:10px 14px;text-align:left;border:1px solid var(--border);}
+td{padding:8px 14px;border:1px solid var(--border);background:#f8fafc;}
+tr:nth-child(even) td{background:rgba(255,255,255,.04);}
+/* Quiz */
+.quiz-q{font-size:1.1em;font-weight:600;margin-bottom:14px;color:var(--text);}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:11px 18px;margin:7px 0;cursor:pointer;transition:all .2s;font-size:.98em;}
+.quiz-opt:hover{border-color:var(--accent);}
+.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:12px 16px;border-radius:8px;margin-top:10px;font-size:.95em;}
+.feedback.ok{background:rgba(76,175,80,.15);border-left:4px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.15);border-left:4px solid var(--red);}
+/* Nav / footer */
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;transition:all .2s;}
+.nav-btn:hover{background:#e2e8f0;color:var(--text);}
+.nav-btn:disabled{opacity:.3;cursor:default;}
+.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+/* Notes panel */
+#notesPanel{display:none;position:fixed;bottom:60px;right:16px;width:320px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 32px rgba(0,0,0,.12);}
+#notesPanel.show{display:block;}
+#notesPanel textarea{width:100%;height:120px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.88em;}
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="app">
+<!-- HEADER -->
+<div class="hdr">
+  <div class="badge">Module 01</div>
+  <span class="htitle">📘 Introduction to VBA</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">9</span> &nbsp;|&nbsp; ⏱ 20 min &nbsp;|&nbsp; 🟢 Beginner
+    <button class="btn btn-gray" style="margin-left:12px;padding:4px 10px;font-size:.8em;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+
+<!-- SLIDES CONTAINER -->
+<div class="scontainer" id="sc">
+
+<!-- SLIDE 1 – TITLE -->
+<div class="slide title-slide active">
+  <div class="big-icon">📘</div>
+  <h1>Introduction to <span>VBA</span></h1>
+  <p class="subtitle">Visual Basic for Applications — your gateway to Excel automation</p>
+  <div style="margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <span class="tag tag-green">Beginner Friendly</span>
+    <span class="tag tag-blue">No Prior Coding Needed</span>
+    <span class="tag tag-orange">Excel + VBA</span>
+  </div>
+  <p style="margin-top:28px;color:var(--muted);">Use ← → arrow keys or buttons below to navigate</p>
+</div>
+
+<!-- SLIDE 2 – WHAT IS VBA -->
+<div class="slide">
+  <h2>What is VBA?</h2>
+  <p>VBA stands for <b style="color:var(--accent)">Visual Basic for Applications</b> — a programming language built directly into Microsoft Office applications like Excel, Word, and Access.</p>
+  <div class="two-col">
+    <div class="card">
+      <h3>🏗️ Where to Find It</h3>
+      <p>Inside Excel itself. No separate installation needed. Access it via <b>Alt + F11</b> or the Developer tab.</p>
+    </div>
+    <div class="card">
+      <h3>⚙️ What does it do?</h3>
+      <p>VBA lets you <b>write instructions (macros)</b> that Excel follows automatically — saving hours of manual work.</p>
+    </div>
+  </div>
+  <div class="callout info">
+    <strong>📌 Key Fact</strong>
+    VBA has been part of Microsoft Office since 1993. It is one of the most widely used automation tools in business worldwide.
+  </div>
+</div>
+
+<!-- SLIDE 3 – WHY LEARN VBA -->
+<div class="slide">
+  <h2>Why Learn VBA?</h2>
+  <div class="card-row">
+    <div class="small-card"><div class="ico">⚡</div><h3>Speed</h3><p>Run in seconds what takes hours manually</p></div>
+    <div class="small-card"><div class="ico">🎯</div><h3>Accuracy</h3><p>Eliminate human errors in repetitive tasks</p></div>
+    <div class="small-card"><div class="ico">🔄</div><h3>Automation</h3><p>Schedule and repeat tasks without effort</p></div>
+    <div class="small-card"><div class="ico">📊</div><h3>Reports</h3><p>Generate formatted reports automatically</p></div>
+    <div class="small-card"><div class="ico">🔗</div><h3>Integration</h3><p>Connect Excel to other Office apps</p></div>
+    <div class="small-card"><div class="ico">💼</div><h3>Career</h3><p>High-demand skill in manufacturing &amp; business</p></div>
+  </div>
+  <div class="callout success">
+    <strong>✅ Key Takeaway</strong>
+    Excel formulas are about calculation and data manipulation.
+    VBA is about automation and workflow control.
+    Together, they complement each other: formulas handle the math, VBA handles the process.
+  </div>
+</div>
+
+<!-- SLIDE 4 – REAL EXAMPLES -->
+<div class="slide">
+  <h2>What Can VBA Do? — Real Examples</h2>
+  <div class="two-col">
+    <div>
+      <ul class="bullets">
+        <li><b>Data Cleanup:</b> Remove duplicates, fix formatting across 10,000 rows in one click</li>
+        <li><b>Automated Reports:</b> Pull data from multiple sheets, build formatted report, save as PDF</li>
+        <li><b>Data Entry Forms:</b> Custom forms with validation to prevent bad input</li>
+        <li><b>Email Automation:</b> Send personalized emails to a list via Outlook</li>
+        <li><b>Dashboard Updates:</b> Refresh charts and pivot tables automatically</li>
+        <li><b>File Management:</b> Batch rename, move, or process Excel files</li>
+      </ul>
+    </div>
+    <div>
+      <div class="demo-box">
+        <div class="demo-title">▶ DEMO — What a macro looks like</div>
+        <div class="demo-code-area" id="slide4demo"></div>
+        <div class="demo-controls">
+          <button class="btn btn-accent" onclick="playDemo4()">▶ Play Demo</button>
+          <button class="btn btn-gray" onclick="resetDemo4()">↺ Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5 – VBA vs FORMULAS -->
+<div class="slide">
+  <h2>VBA vs. Excel Formulas</h2>
+  <table>
+    <tr><th></th><th>Excel Formulas</th><th>VBA Macros</th></tr>
+    <tr><td><b>Best for</b></td><td>Calculations in cells</td><td>Automating actions &amp; workflows</td></tr>
+    <tr><td><b>Runs when</b></td><td>Cell value changes</td><td>When you trigger it (button, event)</td></tr>
+    <tr><td><b>Can modify</b></td><td>Only its own cell</td><td>Any cell, sheet, file, or app</td></tr>
+    <tr><td><b>User dialogs</b></td><td>❌ No</td><td>✅ Yes (MsgBox, InputBox, Forms)</td></tr>
+    <tr><td><b>Loop over data</b></td><td>Limited (array formulas)</td><td>✅ Full loop support</td></tr>
+    <tr><td><b>File operations</b></td><td>❌ No</td><td>✅ Create, save, close files</td></tr>
+  </table>
+  <div class="callout tip">
+    <strong>💡 Pro Tip</strong>
+    Use formulas for calculations, VBA for everything else. They work perfectly together!
+  </div>
+</div>
+
+<!-- SLIDE 6 – VBE QUICK PEEK -->
+<div class="slide">
+  <h2>A Quick Peek at the VBA Editor</h2>
+  <p>When you press <b style="color:var(--accent)">Alt + F11</b> in Excel, the Visual Basic Editor (VBE) opens:</p>
+  <div class="card" style="background:#1a1a2e;border-color:#444;font-family:monospace;font-size:.88em;">
+    <div style="background:#2d2d2d;padding:6px 12px;color:#bbb;border-radius:4px;margin-bottom:10px;">
+      Microsoft Visual Basic for Applications — Book1.xlsm
+    </div>
+    <div class="two-col" style="gap:8px;">
+      <div style="background:#1e1e1e;padding:10px;border-radius:4px;color:#888;">
+        <div style="color:#ff8f00;font-weight:bold;margin-bottom:6px;">Project Explorer</div>
+        📁 VBAProject (Book1.xlsm)<br>
+        &nbsp;📂 Microsoft Excel Objects<br>
+        &nbsp;&nbsp;📄 Sheet1 (Sheet1)<br>
+        &nbsp;&nbsp;📄 ThisWorkbook<br>
+        &nbsp;📂 Modules<br>
+        &nbsp;&nbsp;📄 Module1
+      </div>
+      <div style="background:#1e1e1e;padding:10px;border-radius:4px;">
+        <div style="color:#ff8f00;font-weight:bold;margin-bottom:6px;">Code Window</div>
+        <span class="kw">Sub</span> <span class="func">HelloWorld</span>()<br>
+        &nbsp;&nbsp;<span class="func">MsgBox</span> <span class="str">"Hello, VBA!"</span><br>
+        <span class="kw">End Sub</span>
+      </div>
+    </div>
+  </div>
+  <div class="callout">
+    <strong>⌨️ Shortcut</strong>
+    Alt+F11 — Opens VBE &nbsp;|&nbsp; F5 — Run current macro &nbsp;|&nbsp; F8 — Step through code line by line
+  </div>
+</div>
+
+<!-- SLIDE 7 – COURSE ROADMAP -->
+<div class="slide">
+  <h2>Course Roadmap — 12 Modules</h2>
+  <div class="two-col">
+    <div>
+      <div class="card" style="border-color:#4caf50;">
+        <h3>🟢 Foundation (Modules 1–4)</h3>
+        <ul class="bullets" style="margin:0;">
+          <li>Introduction to VBA (this module)</li>
+          <li>Getting Started – VBE &amp; first macro</li>
+          <li>Variables &amp; Data Types</li>
+          <li>Control Flow – If, Loops, Select Case</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:#ff9800;margin-top:12px;">
+        <h3>🟡 Intermediate (Modules 5–8)</h3>
+        <ul class="bullets" style="margin:0;">
+          <li>Procedures &amp; Functions</li>
+          <li>Excel Object Model</li>
+          <li>Built-in Functions</li>
+          <li>Error Handling &amp; Debugging</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="border-color:#2196f3;">
+        <h3>🔵 Applied (Modules 9–10)</h3>
+        <ul class="bullets" style="margin:0;">
+          <li>UserForms &amp; UI Building</li>
+          <li>Practical Applications &amp; Projects</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:#9c27b0;margin-top:12px;">
+        <h3>🟣 AI-Powered (Modules 11–12)</h3>
+        <ul class="bullets" style="margin:0;">
+          <li>Using AI (ChatGPT) for VBA</li>
+          <li>Advanced AI Prompt Engineering</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8 – QUIZ -->
+<div class="slide">
+  <h2>🎯 Quick Check</h2>
+  <div class="quiz-q">Q1: What does VBA stand for?</div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'VBA = Visual Basic for Applications')">Visual Build Applications</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'Correct! VBA = Visual Basic for Applications')">Visual Basic for Applications</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'VBA = Visual Basic for Applications')">Variable Based Automation</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'VBA = Visual Basic for Applications')">Verified Business App</div>
+  </div>
+  <div id="q1fb"></div>
+  <br>
+  <div class="quiz-q">Q2: How do you open the VBE in Excel?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'The shortcut is Alt + F11')">Ctrl + V</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'The shortcut is Alt + F11')">Ctrl + Shift + V</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'Correct! Alt + F11 opens the Visual Basic Editor')">Alt + F11</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'The shortcut is Alt + F11')">F5</div>
+  </div>
+  <div id="q2fb"></div>
+</div>
+
+<!-- SLIDE 9 – SUMMARY -->
+<div class="slide title-slide">
+  <div class="big-icon" style="font-size:3.5em;">🎉</div>
+  <h1>Module 1 <span>Complete!</span></h1>
+  <p class="subtitle">Great job! You now understand what VBA is and why it matters.</p>
+  <div class="card" style="text-align:left;margin-top:24px;max-width:500px;">
+    <h3>📋 Key Takeaways</h3>
+    <ul class="bullets">
+      <li>VBA = Visual Basic for Applications, built into Excel</li>
+      <li>Automates repetitive tasks and saves time</li>
+      <li>More powerful than formulas for actions &amp; workflows</li>
+      <li>Open VBE with <b>Alt + F11</b></li>
+      <li>12 modules ahead — from basics to AI-assisted coding!</li>
+    </ul>
+  </div>
+  <p style="margin-top:20px;color:var(--muted);">📌 Return to the launcher and open <b>Module 02 – Getting Started</b></p>
+</div>
+
+</div><!-- end scontainer -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys &nbsp;|&nbsp; Space = Next</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div><!-- end app -->
+
+<!-- NOTES PANEL -->
+<div id="notesPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <b style="color:var(--accent);">📝 My Notes – Module 01</b>
+    <button class="btn btn-gray" style="padding:2px 8px;" onclick="toggleNotes()">✕</button>
+  </div>
+  <textarea id="notesArea" placeholder="Type your notes here..."></textarea>
+  <button class="btn btn-accent" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+
+<script>
+// ── Slide engine ──
+const slides = [...document.querySelectorAll('.slide')];
+let cur = 0;
+const total = slides.length;
+document.getElementById('tn').textContent = total;
+
+function show(n){
+  slides[cur].classList.remove('active');
+  cur = Math.max(0,Math.min(n,total-1));
+  slides[cur].classList.add('active');
+  document.getElementById('cn').textContent = cur+1;
+  document.getElementById('pf').style.width = ((cur+1)/total*100)+'%';
+  document.getElementById('prevBtn').disabled = cur===0;
+  const nb=document.getElementById('nextBtn');
+  if(cur===total-1){nb.textContent='✓ Complete';nb.classList.add('done');}
+  else{nb.textContent='Next ▶';nb.classList.remove('done');}
+}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}
+function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' ')next();
+  if(e.key==='ArrowLeft')prev();
+});
+
+// ── Quiz ──
+function checkQ(containerId,el,correct,msg){
+  const opts=document.querySelectorAll('#'+containerId+' .quiz-opt');
+  opts.forEach(o=>o.style.pointerEvents='none');
+  el.classList.add(correct?'correct':'wrong');
+  const fb=document.getElementById(containerId.replace('opts','fb'));
+  fb.innerHTML=`<div class="feedback ${correct?'ok':'bad'}">${correct?'✅':'❌'} ${msg}</div>`;
+}
+
+// ── Demo slide 4 ──
+const demo4steps=[
+  {line:'<span class="kw">Sub</span> <span class="func">CleanupReport</span>()'},
+  {line:'&nbsp;&nbsp;<span class="com">\'  Loops through all rows and removes empty ones</span>'},
+  {line:'&nbsp;&nbsp;<span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>'},
+  {line:'&nbsp;&nbsp;<span class="kw">For</span> i = <span class="num">1000</span> <span class="kw">To</span> <span class="num">1</span> <span class="kw">Step</span> -<span class="num">1</span>'},
+  {line:'&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">If</span> <span class="func">IsEmpty</span>(Cells(i,<span class="num">1</span>)) <span class="kw">Then</span>'},
+  {line:'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Rows(i).Delete'},
+  {line:'&nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">End If</span>'},
+  {line:'&nbsp;&nbsp;<span class="kw">Next</span> i'},
+  {line:'&nbsp;&nbsp;<span class="func">MsgBox</span> <span class="str">"Done! Report cleaned."</span>'},
+  {line:'<span class="kw">End Sub</span>'},
+];
+let demo4timer=null;
+function playDemo4(){
+  resetDemo4();
+  const el=document.getElementById('slide4demo');
+  let i=0;
+  demo4timer=setInterval(()=>{
+    if(i>=demo4steps.length){
+      clearInterval(demo4timer);
+      document.querySelector('.demo-output') && (document.querySelector('.demo-output').innerHTML='');
+      const out=document.createElement('div');
+      out.className='demo-output';
+      out.innerHTML='▶ Running... ✅ Done! Report cleaned. (1000 rows processed in 0.3s)';
+      el.parentElement.insertBefore(out,el.nextSibling);
+      return;
+    }
+    const line=document.createElement('div');
+    line.innerHTML=demo4steps[i].line;
+    line.style.animation='fadeUp .2s ease';
+    el.appendChild(line);
+    i++;
+  },350);
+}
+function resetDemo4(){
+  if(demo4timer)clearInterval(demo4timer);
+  document.getElementById('slide4demo').innerHTML='';
+  const out=document.querySelector('.demo-output');
+  if(out)out.remove();
+}
+
+// ── Notes ──
+function toggleNotes(){document.getElementById('notesPanel').classList.toggle('show');}
+function saveNotes(){
+  localStorage.setItem('vba_notes_01',document.getElementById('notesArea').value);
+  alert('Notes saved!');
+}
+document.getElementById('notesArea').value=localStorage.getItem('vba_notes_01')||'';
+</script>
+</body>
+</html>
