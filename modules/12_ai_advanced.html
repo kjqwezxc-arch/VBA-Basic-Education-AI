@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 12 – AI for VBA: Advanced</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#2e7d32;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;--ai:#6d28d9;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--ai);color:#fff;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+.pbar{background:#e2e8f0;}.pfill{height:6px;background:var(--ai);transition:width .35s;}
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:36px 60px;display:none;overflow-y:auto;flex-direction:column;justify-content:center;}
+.slide.active{display:flex;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.title-slide{text-align:center;align-items:center;}
+.big-icon{font-size:4.5em;margin-bottom:12px;}
+h1{font-size:2.4em;margin-bottom:10px;}h1 span{color:var(--ai);}
+h2{font-size:1.65em;margin-bottom:10px;color:var(--ai);}h3{font-size:1.15em;color:var(--accent);margin-bottom:6px;}
+p{line-height:1.75;margin-bottom:10px;}
+.subtitle{color:var(--muted);font-size:1.1em;}
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:12px 16px;border-radius:0 10px 10px 0;margin:10px 0;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout.ai{border-color:var(--ai);background:rgba(124,58,237,.1);}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout.danger{border-color:var(--red);background:rgba(244,67,54,.1);}
+.callout strong{display:block;margin-bottom:3px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0;}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:14px 16px;font-family:'Cascadia Code','Consolas',monospace;font-size:.87em;white-space:pre;overflow-x:auto;margin:10px 0;line-height:1.6;color:#d4d4d4;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}
+.chat-flow{margin:10px 0;}
+.chat-bubble{border-radius:10px;padding:10px 16px;margin:6px 0;font-size:.87em;line-height:1.55;color:var(--text);}
+.chat-user{background:#e8f0fe;border-left:4px solid #2563eb;border-bottom-left-radius:2px;}
+.chat-user::before{content:'\1F464 You: ';font-weight:bold;display:block;color:#2563eb;font-size:.83em;margin-bottom:4px;}
+.chat-ai{background:#f0fdf4;border-left:4px solid #16a34a;border-bottom-right-radius:2px;}
+.chat-ai::before{content:'\1F916 AI: ';font-weight:bold;display:block;color:#16a34a;font-size:.83em;margin-bottom:4px;}
+/* Prompt quality scale */
+.prompt-example{background:var(--card);border-radius:8px;padding:12px 16px;margin:8px 0;border-left:4px solid #30363d;}
+.prompt-bad{border-color:var(--red);}
+.prompt-ok{border-color:var(--accent);}
+.prompt-great{border-color:var(--green);}
+.prompt-label{font-size:.78em;font-weight:700;margin-bottom:4px;}
+.label-bad{color:var(--red);}
+.label-ok{color:var(--accent);}
+.label-great{color:var(--green);}
+/* Build steps */
+.build-steps{counter-reset:step;}
+.build-step{counter-increment:step;display:flex;gap:12px;margin:8px 0;align-items:flex-start;}
+.step-num{background:var(--ai);color:#fff;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9em;flex-shrink:0;margin-top:2px;}
+.step-num::before{content:counter(step);}
+.quiz-q{font-size:1.1em;font-weight:600;margin-bottom:10px;}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:9px 14px;margin:5px 0;cursor:pointer;transition:all .2s;}
+.quiz-opt:hover{border-color:var(--ai);}.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:9px 14px;border-radius:8px;margin-top:8px;font-size:.9em;}
+.feedback.ok{background:rgba(76,175,80,.12);border-left:3px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.12);border-left:3px solid var(--red);}
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;}
+.nav-btn:hover{background:#e2e8f0;color:var(--text);}.nav-btn:disabled{opacity:.3;cursor:default;}.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+.btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;}
+.btn-a{background:var(--ai);color:#fff;}.btn-g{background:#e2e8f0;color:var(--text);}
+#np{display:none;position:fixed;bottom:60px;right:16px;width:300px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+#np.show{display:block;}
+#np textarea{width:100%;height:110px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.85em;}
+/* Completion fireworks */
+.firework{display:none;font-size:2em;margin:10px 0;animation:pop 0.5s ease;}
+@keyframes pop{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="badge">Module 12</div>
+  <span class="htitle">🧠 AI for VBA — Advanced</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">11</span> &nbsp;|&nbsp; ⏱ 40 min &nbsp;|&nbsp; 🔴 Advanced
+    <button class="btn btn-g" style="padding:4px 10px;font-size:.78em;margin-left:12px;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+<div class="scontainer">
+
+<!-- S1 Title -->
+<div class="slide title-slide active">
+  <div class="big-icon">🧠</div>
+  <h1>AI for VBA <span>— Advanced</span></h1>
+  <p class="subtitle">Advanced prompt engineering, iterative refinement, code review, and building complete applications with AI</p>
+</div>
+
+<!-- S2 Prompt Quality Scale -->
+<div class="slide">
+  <h2>Prompt Engineering — Good vs Great</h2>
+  <p>The difference between a vague and specific prompt is often the difference between broken and perfect code:</p>
+  <div class="prompt-example prompt-bad">
+    <div class="prompt-label label-bad">❌ VAGUE — likely gets generic, non-working code</div>
+    "Write a macro to process my Excel data"
+  </div>
+  <div class="prompt-example prompt-ok">
+    <div class="prompt-label label-ok">⚠️ OK — better but missing key details</div>
+    "Write a macro to copy rows from Sheet1 to Sheet2 if column A contains 'Approved'"
+  </div>
+  <div class="prompt-example prompt-great">
+    <div class="prompt-label label-great">✅ GREAT — specific, contextual, constrained</div>
+    "Act as a VBA expert. I have Sheet1 with data starting from row 2 (row 1 = headers: Order ID, Status, Amount, Date in columns A–D). Write a macro that copies all rows where column B (Status) = 'Approved' to a sheet named 'Approved Orders', creating that sheet if it doesn't exist. Clear the destination sheet before copying. Include error handling, add comments, and use Long for row variables."
+  </div>
+  <div class="callout ai"><strong>🎯 The 3 Levels of Specificity</strong>
+    <b>Data structure</b> — sheet names, column positions, header rows<br>
+    <b>Exact behavior</b> — what happens in edge cases (empty, already exists, etc.)<br>
+    <b>Code quality</b> — error handling, comments, variable types
+  </div>
+</div>
+
+<!-- S3 Role Prompting -->
+<div class="slide">
+  <h2>Advanced: Role + Context Injection</h2>
+  <p>Give AI a specific role and deep context about your project before asking the main question:</p>
+  <div class="callout ai" style="font-size:.9em;">
+    <strong>🎭 Role Injection Template</strong>
+    "You are a senior Excel VBA developer who specializes in automated reporting for manufacturing companies. I am developing a macro-enabled workbook for a motorcycle company's sales team. The workbook has these sheets: [list them]. Column structure for each sheet: [describe]. Our coding standards: always use error handling with On Error GoTo, use descriptive variable names, add comments above each block of logic, declare all variables with Dim, and use ThisWorkbook instead of ActiveWorkbook. [Now ask your question]"
+  </div>
+  <div class="two-col" style="margin-top:10px;">
+    <div>
+      <h3>Without Role Injection</h3>
+      <div class="chat-bubble chat-user">Write a macro to send a monthly report</div>
+      <div class="chat-bubble chat-ai">Generic code with placeholder names like "Sheet1", no error handling, uses ActiveWorkbook...</div>
+    </div>
+    <div>
+      <h3>With Role Injection</h3>
+      <div class="chat-bubble chat-user">[After setting the context above] Write a macro to send the monthly report</div>
+      <div class="chat-bubble chat-ai">Code uses your exact sheet names, includes proper error handling, ThisWorkbook, your naming conventions, and relevant comments...</div>
+    </div>
+  </div>
+</div>
+
+<!-- S4 Iterative Refinement -->
+<div class="slide">
+  <h2>Iterative Refinement — One Step at a Time</h2>
+  <p>Don't try to ask for everything at once. Build up the macro through a conversation:</p>
+  <div class="chat-flow">
+    <div class="chat-bubble chat-user">Step 1: Write just the skeleton of a macro called ProcessSalesData that opens a file and reads all rows</div>
+    <div class="chat-bubble chat-ai">Here's the skeleton: [code with structure but no filtering logic]</div>
+    <div class="chat-bubble chat-user">Step 2: Good. Now add filtering: only process rows where column C > 1000</div>
+    <div class="chat-bubble chat-ai">Updated code with If Cells(i,3).Value > 1000 Then filter added...</div>
+    <div class="chat-bubble chat-user">Step 3: Now add code to write results to a summary sheet and auto-format the output as a table</div>
+    <div class="chat-bubble chat-ai">Final complete macro with all three features integrated...</div>
+  </div>
+  <div class="callout success"><strong>✅ Why Iterative Works Better</strong>
+    • Each step is testable — you catch errors early<br>
+    • AI doesn't lose context building on prior responses<br>
+    • Easier to understand what each part does<br>
+    • You can stop and redirect at any point
+  </div>
+</div>
+
+<!-- S5 Code Review with AI -->
+<div class="slide">
+  <h2>AI Code Review — Find Issues Before They Happen</h2>
+  <p>Before deploying a macro to colleagues, ask AI to review it:</p>
+  <div class="chat-flow">
+    <div class="chat-bubble chat-user">Please review this VBA macro for:
+1. Bugs or logic errors
+2. Missing error handling
+3. Performance issues
+4. Anything that could fail on large datasets or edge cases
+
+[paste your code]</div>
+    <div class="chat-bubble chat-ai">Code Review Report:
+
+🔴 <b>Bug found (Line 12):</b> Loop uses integer i but row count may exceed 32,767. Change i to Long.
+
+🟡 <b>Missing error handling:</b> The Sheets("Report") reference on Line 8 will crash if that sheet is renamed. Add: On Error Resume Next / Set ws = Sheets("Report") / On Error GoTo 0
+
+🟡 <b>Performance:</b> ScreenUpdating is never turned off. For large datasets add Application.ScreenUpdating = False at start.
+
+🟢 <b>Logic:</b> The backwards delete loop (Step -1) is correct — no issues found.
+
+✅ <b>Overall:</b> Functional but needs the Integer→Long fix before running on large files.</div>
+  </div>
+</div>
+
+<!-- S6 Build App Step by Step -->
+<div class="slide">
+  <h2>Building a Complete Application with AI</h2>
+  <p>Use AI to build a full macro-based tool through a structured conversation:</p>
+  <div class="build-steps">
+    <div class="build-step">
+      <div class="step-num"></div>
+      <div><b>Define requirements</b> — "I need a VBA tool that does X, Y, Z. Here's the sheet structure..."</div>
+    </div>
+    <div class="build-step">
+      <div class="step-num"></div>
+      <div><b>Get architecture plan</b> — "What Subs/Functions do I need? Describe the structure first."</div>
+    </div>
+    <div class="build-step">
+      <div class="step-num"></div>
+      <div><b>Build module by module</b> — "Write just the data validation module first."</div>
+    </div>
+    <div class="build-step">
+      <div class="step-num"></div>
+      <div><b>Test each piece</b> — run in Excel, note any issues, report back to AI.</div>
+    </div>
+    <div class="build-step">
+      <div class="step-num"></div>
+      <div><b>Integrate</b> — "Now connect all modules into a main entry Sub that calls each step."</div>
+    </div>
+    <div class="build-step">
+      <div class="step-num"></div>
+      <div><b>Final review</b> — "Review the complete code for any issues and add missing error handling."</div>
+    </div>
+  </div>
+  <div class="callout ai"><strong>🏗️ Example: Build a Full Reporting Tool</strong>With this approach, you can build a complete automated report generator in 1–2 hours that would have taken days without AI. The key: YOU guide the build process; AI writes the code.</div>
+</div>
+
+<!-- S7 Limitations -->
+<div class="slide">
+  <h2>AI Limitations — Know the Boundaries</h2>
+  <div class="two-col">
+    <div>
+      <div class="callout danger">
+        <strong>⚠️ What AI Gets Wrong</strong>
+        <ul style="list-style:none;margin-top:6px;">
+          <li style="padding:4px 0;">🔴 <b>Your actual file</b> — AI can't see your workbook. It guesses your structure.</li>
+          <li style="padding:4px 0;">🔴 <b>Business rules</b> — AI doesn't know your team's special requirements</li>
+          <li style="padding:4px 0;">🔴 <b>Security</b> — AI may suggest storing passwords as plain text strings — never do this</li>
+          <li style="padding:4px 0;">🔴 <b>Latest Excel features</b> — AI knowledge may be outdated</li>
+          <li style="padding:4px 0;">🔴 <b>Confidential data</b> — never paste real customer/employee data into AI chats</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="callout success">
+        <strong>✅ What AI Does Very Well</strong>
+        <ul style="list-style:none;margin-top:6px;">
+          <li style="padding:4px 0;">🟢 Writing boilerplate/repetitive code</li>
+          <li style="padding:4px 0;">🟢 Converting pseudocode to working VBA</li>
+          <li style="padding:4px 0;">🟢 Explaining unfamiliar syntax</li>
+          <li style="padding:4px 0;">🟢 Diagnosing errors from messages</li>
+          <li style="padding:4px 0;">🟢 Suggesting alternative approaches</li>
+          <li style="padding:4px 0;">🟢 Optimizing slow code</li>
+          <li style="padding:4px 0;">🟢 Adding error handling to existing code</li>
+          <li style="padding:4px 0;">🟢 Translating requirements to code</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="callout info"><strong>🔒 Privacy Rules</strong>When using AI for work: describe your data structure but use sample/fake data in examples. Never include real names, IDs, or business-sensitive numbers in your AI prompts.</div>
+</div>
+
+<!-- S8 Combining AI with Your Skills -->
+<div class="slide">
+  <h2>The Human + AI Partnership</h2>
+  <p style="font-size:1em;">You now have both VBA knowledge AND AI skills. Here's how they combine:</p>
+  <div class="two-col">
+    <div>
+      <div class="card" style="border-color:var(--ai);margin-bottom:12px;">
+        <h3 style="color:var(--ai);">🤖 What AI Brings</h3>
+        <ul style="list-style:none;margin-top:6px;font-size:.9em;">
+          <li style="padding:4px 0;">• Speed — writes code faster than you can type</li>
+          <li style="padding:4px 0;">• Breadth — knows thousands of VBA patterns</li>
+          <li style="padding:4px 0;">• Patience — happy to explain the same thing many ways</li>
+          <li style="padding:4px 0;">• Memory — never forgets syntax</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="card" style="border-color:var(--accent);margin-bottom:12px;">
+        <h3>🧑 What You Bring</h3>
+        <ul style="list-style:none;margin-top:6px;font-size:.9em;">
+          <li style="padding:4px 0;">• Context — you know your data, your team's needs</li>
+          <li style="padding:4px 0;">• Judgment — you can tell if code makes sense</li>
+          <li style="padding:4px 0;">• Validation — you can test and verify results</li>
+          <li style="padding:4px 0;">• Business rules — you understand the "why"</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="callout ai">
+    <strong>🚀 The Result</strong>
+    A skilled developer with AI assistance can build tools <b>5–10× faster</b> than without AI — while maintaining quality because they can validate the output. This is the new skill set for modern office automation.
+  </div>
+</div>
+
+<!-- S9 Practice Challenges -->
+<div class="slide">
+  <h2>🎯 Practice Challenges — Try These!</h2>
+  <p>Use ChatGPT to help you build these. Apply everything you've learned:</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;">
+    <div class="card" style="border-color:#1565c0;">
+      <h3 style="color:#64b5f6;">🟢 Level 1</h3>
+      <p style="font-size:.9em;">Ask AI to write a macro that formats any selected range as a professional table: zebra striping, bold headers, borders, auto-fit columns. Validate and test it.</p>
+    </div>
+    <div class="card" style="border-color:#1565c0;">
+      <h3 style="color:#64b5f6;">🟡 Level 2</h3>
+      <p style="font-size:.9em;">Use iterative prompts to build a data validation tool: reads from a sheet, flags blank required fields in red, duplicate IDs in yellow, generates a validation report on a separate sheet.</p>
+    </div>
+    <div class="card" style="border-color:#1565c0;">
+      <h3 style="color:#64b5f6;">🟠 Level 3</h3>
+      <p style="font-size:.9em;">Build a complete mini-application: a UserForm for data entry + a macro to write to a database sheet + a report generator + PDF export button. Use AI to build each piece.</p>
+    </div>
+    <div class="card" style="border-color:#1565c0;">
+      <h3 style="color:#64b5f6;">🔴 Level 4</h3>
+      <p style="font-size:.9em;">Take a macro you've already written, paste it into AI, ask for a full code review, implement the suggested improvements, and document what changed and why.</p>
+    </div>
+  </div>
+  <div class="callout success"><strong>💡 Tip</strong>Share your results with colleagues! Teaching others reinforces your own learning and builds a culture of automation in your team.</div>
+</div>
+
+<!-- S10 Quiz -->
+<div class="slide">
+  <h2>🎯 Final Quiz</h2>
+  <div class="quiz-q">Q1: When building a large macro application with AI, which approach gives the best results?</div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Iterative building allows you to test each part before moving on, catching errors early and maintaining control.')">Write one huge prompt describing everything at once</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'Correct! Building iteratively — one feature at a time, testing each piece — produces better, more reliable code.')">Build iteratively, one feature at a time, testing each piece</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Iterative building allows you to test each part before moving on, catching errors early and maintaining control.')">Ask AI to test the code for you</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Iterative building allows you to test each part before moving on, catching errors early and maintaining control.')">Use a different AI tool for each module</div>
+  </div>
+  <div id="q1fb"></div><br>
+  <div class="quiz-q">Q2: What should you NEVER include in an AI prompt for work?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Real customer names, IDs, and sensitive business data should never be pasted into AI prompts — use fake/sample data instead.')">Your column structure</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Real customer names, IDs, and sensitive business data should never be pasted into AI prompts — use fake/sample data instead.')">Error messages from VBA</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'Correct! Real customer names, employee IDs, and confidential business data must never go into AI chat prompts.')">Real customer/employee names and confidential business data</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Real customer names, IDs, and sensitive business data should never be pasted into AI prompts — use fake/sample data instead.')">Sheet names and column names</div>
+  </div>
+  <div id="q2fb"></div>
+</div>
+
+<!-- S11 COURSE COMPLETE -->
+<div class="slide title-slide">
+  <div id="fw" class="firework">🎊 🎉 🏆 🎊 🎉</div>
+  <div class="big-icon" id="finalIcon">🏆</div>
+  <h1>Course <span>Complete!</span></h1>
+  <p class="subtitle">You have completed all 12 modules of the VBA Macro Basics course!</p>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;max-width:620px;margin:16px 0;">
+    <div class="card" style="text-align:center;">
+      <div style="font-size:2em;">📚</div>
+      <div style="color:var(--accent);font-weight:700;font-size:1.3em;">12</div>
+      <div style="color:var(--muted);font-size:.85em;">Modules</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:2em;">⏱️</div>
+      <div style="color:var(--accent);font-weight:700;font-size:1.3em;">6.5h</div>
+      <div style="color:var(--muted);font-size:.85em;">Content</div>
+    </div>
+    <div class="card" style="text-align:center;">
+      <div style="font-size:2em;">💡</div>
+      <div style="color:var(--accent);font-weight:700;font-size:1.3em;">60+</div>
+      <div style="color:var(--muted);font-size:.85em;">Examples</div>
+    </div>
+  </div>
+  <div class="card" style="text-align:left;max-width:560px;">
+    <h3>📋 Your Learning Journey</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:.85em;margin-top:8px;">
+      <div>✅ VBA Introduction</div><div>✅ Built-in Functions</div>
+      <div>✅ VBE Setup</div><div>✅ Error Handling</div>
+      <div>✅ Variables &amp; Types</div><div>✅ UserForms &amp; UI</div>
+      <div>✅ Control Flow</div><div>✅ Practical Apps</div>
+      <div>✅ Procedures</div><div>✅ AI for VBA: Intro</div>
+      <div>✅ Excel Objects</div><div>✅ AI for VBA: Advanced</div>
+    </div>
+  </div>
+  <div class="callout ai" style="max-width:560px;margin-top:12px;text-align:left;">
+    <strong>🚀 Next Steps</strong>
+    Apply what you've learned! Start with a small real-world automation task at your workplace. Remember: VBA + AI is a superpower — use it to save time and help your team work smarter.
+  </div>
+</div>
+
+</div>
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div>
+<div id="np">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--ai);">📝 Notes – M12</b><button class="btn btn-g" style="padding:2px 8px;" onclick="toggleNotes()">✕</button></div>
+  <textarea id="na" placeholder="Notes..."></textarea>
+  <button class="btn btn-a" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;const total=slides.length;
+document.getElementById('tn').textContent=total;
+function show(n){
+  slides[cur].classList.remove('active');
+  cur=Math.max(0,Math.min(n,total-1));
+  slides[cur].classList.add('active');
+  document.getElementById('cn').textContent=cur+1;
+  document.getElementById('pf').style.width=((cur+1)/total*100)+'%';
+  document.getElementById('prevBtn').disabled=cur===0;
+  const nb=document.getElementById('nextBtn');
+  if(cur===total-1){
+    nb.textContent='🏆 Finish Course';
+    nb.classList.add('done');
+    setTimeout(()=>{
+      const fw=document.getElementById('fw');
+      fw.style.display='block';
+      setTimeout(()=>fw.classList.add('firework'),50);
+    },300);
+  } else {
+    nb.textContent='Next ▶';
+    nb.classList.remove('done');
+  }
+}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+function checkQ(id,el,ok,msg){document.querySelectorAll('#'+id+' .quiz-opt').forEach(o=>o.style.pointerEvents='none');el.classList.add(ok?'correct':'wrong');const fb=document.getElementById(id.replace('opts','fb'));fb.innerHTML=`<div class="feedback ${ok?'ok':'bad'}">${ok?'✅':'❌'} ${msg}</div>`;}
+function toggleNotes(){document.getElementById('np').classList.toggle('show');}
+function saveNotes(){localStorage.setItem('vba_notes_12',document.getElementById('na').value);alert('Saved!');}
+document.getElementById('na').value=localStorage.getItem('vba_notes_12')||'';
+</script>
+</body>
+</html>

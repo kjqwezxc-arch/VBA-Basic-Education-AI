@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 07 – Built-in Functions</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#2e7d32;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+.pbar{background:#e2e8f0;}.pfill{height:6px;background:var(--accent);transition:width .35s;}
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:36px 60px;display:none;overflow-y:auto;flex-direction:column;justify-content:center;}
+.slide.active{display:flex;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.title-slide{text-align:center;align-items:center;}
+.big-icon{font-size:4.5em;margin-bottom:12px;}
+h1{font-size:2.4em;margin-bottom:10px;}h1 span{color:var(--accent);}
+h2{font-size:1.65em;margin-bottom:10px;color:var(--accent);}h3{font-size:1.15em;color:var(--accent);margin-bottom:6px;}
+p{line-height:1.75;margin-bottom:10px;}
+.subtitle{color:var(--muted);font-size:1.1em;}
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:12px 16px;border-radius:0 10px 10px 0;margin:10px 0;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout strong{display:block;margin-bottom:3px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0;}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px 18px;font-family:'Cascadia Code','Consolas',monospace;font-size:.91em;white-space:pre;overflow-x:auto;margin:12px 0;line-height:1.65;color:#d4d4d4;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}
+table{width:100%;border-collapse:collapse;margin:12px 0;font-size:.9em;}
+th{background:#1a237e;padding:8px 12px;text-align:left;border:1px solid #30363d;}
+td{padding:7px 12px;border:1px solid var(--border);background:#f8fafc;}
+tr:nth-child(even) td{background:rgba(255,255,255,.04);}
+td code{color:var(--accent);font-family:monospace;}
+.quiz-q{font-size:1.1em;font-weight:600;margin-bottom:10px;}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:9px 14px;margin:5px 0;cursor:pointer;transition:all .2s;}
+.quiz-opt:hover{border-color:var(--accent);}.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:9px 14px;border-radius:8px;margin-top:8px;font-size:.9em;}
+.feedback.ok{background:rgba(76,175,80,.12);border-left:3px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.12);border-left:3px solid var(--red);}
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;}
+.nav-btn:hover{background:#e2e8f0;color:var(--text);}.nav-btn:disabled{opacity:.3;cursor:default;}.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+.btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;}
+.btn-a{background:var(--accent);color:#000;}.btn-g{background:#e2e8f0;color:var(--text);}
+#np{display:none;position:fixed;bottom:60px;right:16px;width:300px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+#np.show{display:block;}
+#np textarea{width:100%;height:110px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.85em;}
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="badge">Module 07</div>
+  <span class="htitle">🔧 Built-in Functions</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">9</span> &nbsp;|&nbsp; ⏱ 30 min &nbsp;|&nbsp; 🟡 Intermediate
+    <button class="btn btn-g" style="padding:4px 10px;font-size:.78em;margin-left:12px;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+<div class="scontainer">
+
+<div class="slide title-slide active">
+  <div class="big-icon">🔧</div>
+  <h1>Built-in <span>Functions</span></h1>
+  <p class="subtitle">String, Math, Date functions, MsgBox, InputBox, and WorksheetFunction</p>
+</div>
+
+<!-- S2 String Functions -->
+<div class="slide">
+  <h2>String Functions — Text Manipulation</h2>
+  <table>
+    <tr><th>Function</th><th>What it does</th><th>Example → Result</th></tr>
+    <tr><td><code>Len(s)</code></td><td>Length of string</td><td><code>Len("Hello")</code> → 5</td></tr>
+    <tr><td><code>Left(s,n)</code></td><td>First n characters</td><td><code>Left("Yamaha",3)</code> → "Yam"</td></tr>
+    <tr><td><code>Right(s,n)</code></td><td>Last n characters</td><td><code>Right("Yamaha",3)</code> → "aha"</td></tr>
+    <tr><td><code>Mid(s,start,n)</code></td><td>n chars from position start</td><td><code>Mid("Yamaha",2,3)</code> → "ama"</td></tr>
+    <tr><td><code>InStr(s,find)</code></td><td>Find position (0 = not found)</td><td><code>InStr("Yamaha","ah")</code> → 4</td></tr>
+    <tr><td><code>Replace(s,old,new)</code></td><td>Replace text</td><td><code>Replace("Hi World","World","VBA")</code> → "Hi VBA"</td></tr>
+    <tr><td><code>Trim(s)</code></td><td>Remove leading/trailing spaces</td><td><code>Trim("  Hello  ")</code> → "Hello"</td></tr>
+    <tr><td><code>UCase(s) / LCase(s)</code></td><td>Upper/lower case</td><td><code>UCase("hello")</code> → "HELLO"</td></tr>
+    <tr><td><code>Split(s,delim)</code></td><td>Split into array</td><td><code>Split("A,B,C",",")</code> → ["A","B","C"]</td></tr>
+    <tr><td><code>Join(arr,delim)</code></td><td>Join array to string</td><td><code>Join(arr,"-")</code> → "A-B-C"</td></tr>
+    <tr><td><code>Format(val,fmt)</code></td><td>Format as string</td><td><code>Format(1234,"#,##0")</code> → "1,234"</td></tr>
+  </table>
+</div>
+
+<!-- S3 String Examples -->
+<div class="slide">
+  <h2>String Functions — Code Examples</h2>
+  <div class="code-block"><span class="kw">Sub</span> <span class="func">StringExamples</span>()
+    <span class="kw">Dim</span> s <span class="kw">As</span> <span class="type">String</span>
+    s = <span class="str">"  MT-09 Sport 2024  "</span>
+    
+    <span class="com">' Clean the string</span>
+    s = <span class="func">Trim</span>(s)                    <span class="com">' Remove spaces → "MT-09 Sport 2024"</span>
+    s = <span class="func">UCase</span>(s)                   <span class="com">' → "MT-09 SPORT 2024"</span>
+    
+    <span class="com">' Extract parts</span>
+    <span class="kw">Dim</span> model <span class="kw">As</span> <span class="type">String</span>
+    model = <span class="func">Left</span>(s, 5)              <span class="com">' → "MT-09"</span>
+    
+    <span class="com">' Check if contains a word</span>
+    <span class="kw">If</span> <span class="func">InStr</span>(s, <span class="str">"2024"</span>) > <span class="num">0</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"This is a 2024 model"</span>
+    <span class="kw">End If</span>
+    
+    <span class="com">' Split a CSV-like string</span>
+    <span class="kw">Dim</span> parts() <span class="kw">As</span> <span class="type">String</span>
+    parts = <span class="func">Split</span>(<span class="str">"Tanaka,Suzuki,Yamamoto"</span>, <span class="str">","</span>)
+    <span class="com">' parts(0)="Tanaka", parts(1)="Suzuki", parts(2)="Yamamoto"</span>
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">For</span> i = <span class="num">0</span> <span class="kw">To</span> <span class="func">UBound</span>(parts)
+        Cells(i+<span class="num">1</span>, <span class="num">1</span>).Value = parts(i)
+    <span class="kw">Next</span> i
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S4 Math Functions -->
+<div class="slide">
+  <h2>Math &amp; Conversion Functions</h2>
+  <div class="two-col">
+    <div class="code-block"><span class="com">' Math functions</span>
+<span class="func">Abs</span>(-42)         <span class="com">' → 42 (absolute value)</span>
+<span class="func">Int</span>(3.9)         <span class="com">' → 3  (integer part)</span>
+<span class="func">Round</span>(3.567, 2)  <span class="com">' → 3.57</span>
+<span class="func">Sqr</span>(16)          <span class="com">' → 4  (square root)</span>
+<span class="func">Fix</span>(3.9)         <span class="com">' → 3  (truncate)</span>
+
+<span class="com">' Random numbers</span>
+<span class="func">Rnd</span>              <span class="com">' 0 to 1</span>
+<span class="func">Int</span>((<span class="num">100</span> - <span class="num">1</span> + <span class="num">1</span>) * <span class="func">Rnd</span> + <span class="num">1</span>)
+<span class="com">' → random 1 to 100</span>
+
+<span class="com">' Type conversion</span>
+<span class="func">CInt</span>(<span class="str">"42"</span>)        <span class="com">' String → Integer</span>
+<span class="func">CLng</span>(<span class="str">"100000"</span>)    <span class="com">' String → Long</span>
+<span class="func">CDbl</span>(<span class="str">"3.14"</span>)      <span class="com">' String → Double</span>
+<span class="func">CStr</span>(<span class="num">42</span>)          <span class="com">' Number → String</span>
+<span class="func">CBool</span>(<span class="num">1</span>)         <span class="com">' → True</span></div>
+    <div class="code-block"><span class="com">' Date functions</span>
+<span class="func">Date</span>             <span class="com">' Today's date</span>
+<span class="func">Now</span>              <span class="com">' Current date + time</span>
+<span class="func">Time</span>             <span class="com">' Current time</span>
+
+<span class="func">Year</span>(<span class="func">Date</span>)        <span class="com">' Current year</span>
+<span class="func">Month</span>(<span class="func">Date</span>)       <span class="com">' Current month</span>
+<span class="func">Day</span>(<span class="func">Date</span>)         <span class="com">' Day of month</span>
+<span class="func">Weekday</span>(<span class="func">Date</span>)     <span class="com">' Day of week (1=Sun)</span>
+
+<span class="func">DateAdd</span>(<span class="str">"d"</span>, <span class="num">30</span>, <span class="func">Date</span>)   <span class="com">' 30 days from now</span>
+<span class="func">DateDiff</span>(<span class="str">"d"</span>, <span class="str">#1/1/2024#</span>, <span class="func">Date</span>)
+<span class="com">' Days since Jan 1 2024</span>
+
+<span class="func">Format</span>(<span class="func">Date</span>, <span class="str">"yyyy/mm/dd"</span>)
+<span class="com">' → "2026/05/04"</span>
+
+<span class="func">IsDate</span>(<span class="str">"2026/1/1"</span>)  <span class="com">' True</span>
+<span class="func">IsNumeric</span>(<span class="str">"42"</span>)    <span class="com">' True</span></div>
+  </div>
+</div>
+
+<!-- S5 MsgBox -->
+<div class="slide">
+  <h2>MsgBox — Show Messages &amp; Dialogs</h2>
+  <div class="code-block"><span class="com">' Simple message</span>
+<span class="func">MsgBox</span> <span class="str">"Process complete!"</span>
+
+<span class="com">' With title and icon</span>
+<span class="func">MsgBox</span> <span class="str">"File saved!"</span>, vbInformation, <span class="str">"Success"</span>
+<span class="func">MsgBox</span> <span class="str">"Delete all data?"</span>, vbExclamation, <span class="str">"Warning"</span>
+
+<span class="com">' Yes/No dialog — check the response</span>
+<span class="kw">Dim</span> answer <span class="kw">As</span> <span class="type">Integer</span>
+answer = <span class="func">MsgBox</span>(<span class="str">"Are you sure?"</span>, vbYesNo + vbQuestion, <span class="str">"Confirm"</span>)
+<span class="kw">If</span> answer = vbYes <span class="kw">Then</span>
+    <span class="com">' User clicked Yes</span>
+<span class="kw">Else</span>
+    <span class="kw">Exit Sub</span>    <span class="com">' User clicked No</span>
+<span class="kw">End If</span>
+
+<span class="com">' Button constants you can combine with +</span>
+<span class="com">' vbOKOnly, vbOKCancel, vbYesNo, vbYesNoCancel</span>
+<span class="com">' vbInformation, vbQuestion, vbExclamation, vbCritical</span></div>
+  <div class="callout info"><strong>📌 MsgBox Return Values</strong>vbOK=1, vbCancel=2, vbYes=6, vbNo=7, vbAbort=3, vbRetry=4, vbIgnore=5</div>
+</div>
+
+<!-- S6 InputBox -->
+<div class="slide">
+  <h2>InputBox — Get User Input</h2>
+  <div class="code-block"><span class="com">' Basic InputBox</span>
+<span class="kw">Dim</span> userName <span class="kw">As</span> <span class="type">String</span>
+userName = <span class="func">InputBox</span>(<span class="str">"Enter your name:"</span>, <span class="str">"Welcome"</span>)
+<span class="kw">If</span> userName = <span class="str">""</span> <span class="kw">Then</span> <span class="kw">Exit Sub</span>   <span class="com">' User cancelled</span>
+<span class="func">MsgBox</span> <span class="str">"Hello, "</span> & userName
+
+<span class="com">' InputBox with default value</span>
+<span class="kw">Dim</span> rate <span class="kw">As</span> <span class="type">Double</span>
+rate = <span class="func">CDbl</span>(<span class="func">InputBox</span>(<span class="str">"Enter tax rate (%):"</span>, <span class="str">"Tax"</span>, <span class="str">"10"</span>))
+
+<span class="com">' Application.InputBox with type checking (more powerful)</span>
+<span class="kw">Dim</span> targetRange <span class="kw">As</span> <span class="type">Range</span>
+<span class="kw">On Error</span> <span class="kw">Resume Next</span>
+<span class="kw">Set</span> targetRange = Application.InputBox( _
+    <span class="str">"Select the data range:"</span>, _
+    <span class="str">"Select Range"</span>, _
+    Type:=<span class="num">8</span>)   <span class="com">' Type 8 = Range selection!</span>
+<span class="kw">On Error GoTo</span> <span class="num">0</span>
+
+<span class="kw">If</span> targetRange <span class="kw">Is Nothing Then Exit Sub</span>
+<span class="func">MsgBox</span> <span class="str">"You selected: "</span> & targetRange.Address</div>
+  <div class="callout"><strong>📌 Application.InputBox Type Values</strong>0=Formula, 1=Number, 2=String, 4=Boolean, 8=Range, 16=Error value</div>
+</div>
+
+<!-- S7 WorksheetFunction -->
+<div class="slide">
+  <h2>Application.WorksheetFunction — Use Excel Functions in VBA</h2>
+  <div class="code-block"><span class="com">' Access Excel's built-in functions from VBA!</span>
+<span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+<span class="kw">Set</span> ws = ActiveSheet
+
+<span class="com">' SUM, AVERAGE, MAX, MIN</span>
+<span class="kw">Dim</span> total <span class="kw">As</span> <span class="type">Double</span>
+total = Application.WorksheetFunction.Sum(Range(<span class="str">"A1:A100"</span>))
+<span class="kw">Dim</span> avg <span class="kw">As</span> <span class="type">Double</span>
+avg = Application.WorksheetFunction.Average(Range(<span class="str">"B1:B50"</span>))
+
+<span class="com">' VLOOKUP</span>
+<span class="kw">Dim</span> result <span class="kw">As</span> <span class="type">Variant</span>
+<span class="kw">On Error</span> <span class="kw">Resume Next</span>
+result = Application.WorksheetFunction.VLookup( _
+    <span class="str">"MT-09"</span>, Range(<span class="str">"A:C"</span>), <span class="num">3</span>, <span class="kw">False</span>)
+<span class="kw">On Error GoTo</span> <span class="num">0</span>
+<span class="kw">If</span> <span class="func">IsEmpty</span>(result) <span class="kw">Then</span> result = <span class="str">"Not Found"</span>
+
+<span class="com">' COUNTIF</span>
+<span class="kw">Dim</span> cnt <span class="kw">As</span> <span class="type">Long</span>
+cnt = Application.WorksheetFunction.CountIf(Range(<span class="str">"B:B"</span>), <span class="str">"Pass"</span>)
+
+<span class="com">' Shorthand using WorksheetFunction</span>
+<span class="kw">Dim</span> wf <span class="kw">As</span> WorksheetFunction
+<span class="kw">Set</span> wf = Application.WorksheetFunction
+total = wf.Sum(Range(<span class="str">"A1:A10"</span>))</div>
+</div>
+
+<!-- S8 Quiz -->
+<div class="slide">
+  <h2>🎯 Module 7 Quiz</h2>
+  <div class="quiz-q">Q1: What does <code>Mid("YAMAHA", 2, 3)</code> return?</div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Mid starts at position 2 (A), takes 3 chars: A,M,A → "AMA"')">YAM</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'Correct! Mid("YAMAHA", 2, 3) starts at position 2 (A) and takes 3 chars = "AMA"')">AMA</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Mid starts at position 2 (A), takes 3 chars: A,M,A → "AMA"')">AHA</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Mid starts at position 2 (A), takes 3 chars: A,M,A → "AMA"')">MAH</div>
+  </div>
+  <div id="q1fb"></div><br>
+  <div class="quiz-q">Q2: Which MsgBox button constant combination shows Yes/No buttons with a Question icon?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'vbYesNo adds Yes/No buttons; vbQuestion adds the question icon')">vbOKCancel + vbInformation</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'Correct! vbYesNo gives Yes/No buttons, vbQuestion gives the ? icon')">vbYesNo + vbQuestion</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'vbYesNo adds Yes/No buttons; vbQuestion adds the question icon')">vbYesNo + vbExclamation</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'vbYesNo adds Yes/No buttons; vbQuestion adds the question icon')">vbQuestion</div>
+  </div>
+  <div id="q2fb"></div>
+</div>
+
+<!-- S9 Summary -->
+<div class="slide title-slide">
+  <div class="big-icon">🎉</div>
+  <h1>Module 7 <span>Complete!</span></h1>
+  <div class="card" style="text-align:left;max-width:500px;margin-top:20px;">
+    <h3>📋 Key Takeaways</h3>
+    <ul class="bullets" style="list-style:none;">
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>String:</b> Left, Right, Mid, Len, InStr, Replace, Trim, Split</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Math:</b> Abs, Int, Round, Sqr, Rnd</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Date:</b> Date, Now, Year, Month, DateAdd, DateDiff, Format</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>MsgBox</b> with buttons; <b>InputBox</b> for user input</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>WorksheetFunction</b> brings Sum, VLookup, CountIf etc. to VBA</li>
+    </ul>
+  </div>
+  <p style="margin-top:16px;color:var(--muted);">Next: <b>Module 08 – Error Handling &amp; Debugging</b></p>
+</div>
+
+</div>
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div>
+<div id="np">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--accent);">📝 Notes – M07</b><button class="btn btn-g" style="padding:2px 8px;" onclick="toggleNotes()">✕</button></div>
+  <textarea id="na" placeholder="Notes..."></textarea>
+  <button class="btn btn-a" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;const total=slides.length;
+document.getElementById('tn').textContent=total;
+function show(n){slides[cur].classList.remove('active');cur=Math.max(0,Math.min(n,total-1));slides[cur].classList.add('active');document.getElementById('cn').textContent=cur+1;document.getElementById('pf').style.width=((cur+1)/total*100)+'%';document.getElementById('prevBtn').disabled=cur===0;const nb=document.getElementById('nextBtn');if(cur===total-1){nb.textContent='✓ Complete';nb.classList.add('done');}else{nb.textContent='Next ▶';nb.classList.remove('done');}}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+function checkQ(id,el,ok,msg){document.querySelectorAll('#'+id+' .quiz-opt').forEach(o=>o.style.pointerEvents='none');el.classList.add(ok?'correct':'wrong');const fb=document.getElementById(id.replace('opts','fb'));fb.innerHTML=`<div class="feedback ${ok?'ok':'bad'}">${ok?'✅':'❌'} ${msg}</div>`;}
+function toggleNotes(){document.getElementById('np').classList.toggle('show');}
+function saveNotes(){localStorage.setItem('vba_notes_07',document.getElementById('na').value);alert('Saved!');}
+document.getElementById('na').value=localStorage.getItem('vba_notes_07')||'';
+</script>
+</body>
+</html>

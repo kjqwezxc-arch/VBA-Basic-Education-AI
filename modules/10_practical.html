@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 10 – Practical Applications</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#2e7d32;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+.pbar{background:#e2e8f0;}.pfill{height:6px;background:var(--accent);transition:width .35s;}
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:36px 60px;display:none;overflow-y:auto;flex-direction:column;justify-content:center;}
+.slide.active{display:flex;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.title-slide{text-align:center;align-items:center;}
+.big-icon{font-size:4.5em;margin-bottom:12px;}
+h1{font-size:2.4em;margin-bottom:10px;}h1 span{color:var(--accent);}
+h2{font-size:1.65em;margin-bottom:10px;color:var(--accent);}h3{font-size:1.15em;color:var(--accent);margin-bottom:6px;}
+p{line-height:1.75;margin-bottom:10px;}
+.subtitle{color:var(--muted);font-size:1.1em;}
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:12px 16px;border-radius:0 10px 10px 0;margin:10px 0;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout strong{display:block;margin-bottom:3px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0;}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px 18px;font-family:'Cascadia Code','Consolas',monospace;font-size:.89em;white-space:pre;overflow-x:auto;margin:12px 0;line-height:1.65;color:#d4d4d4;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}
+.scenario-tag{display:inline-block;background:#1a237e;color:#90caf9;padding:3px 12px;border-radius:20px;font-size:.8em;margin-bottom:8px;font-weight:600;}
+.quiz-q{font-size:1.1em;font-weight:600;margin-bottom:10px;}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:9px 14px;margin:5px 0;cursor:pointer;transition:all .2s;}
+.quiz-opt:hover{border-color:var(--accent);}.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:9px 14px;border-radius:8px;margin-top:8px;font-size:.9em;}
+.feedback.ok{background:rgba(76,175,80,.12);border-left:3px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.12);border-left:3px solid var(--red);}
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;}
+.nav-btn:hover{background:#e2e8f0;color:var(--text);}.nav-btn:disabled{opacity:.3;cursor:default;}.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+.btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;}
+.btn-a{background:var(--accent);color:#000;}.btn-g{background:#e2e8f0;color:var(--text);}
+#np{display:none;position:fixed;bottom:60px;right:16px;width:300px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+#np.show{display:block;}
+#np textarea{width:100%;height:110px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.85em;}
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="badge">Module 10</div>
+  <span class="htitle">💼 Practical Applications</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">10</span> &nbsp;|&nbsp; ⏱ 45 min &nbsp;|&nbsp; 🟡 Intermediate
+    <button class="btn btn-g" style="padding:4px 10px;font-size:.78em;margin-left:12px;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+<div class="scontainer">
+
+<!-- S1 Title -->
+<div class="slide title-slide active">
+  <div class="big-icon">💼</div>
+  <h1>Practical <span>Applications</span></h1>
+  <p class="subtitle">Real-world macros: data cleanup, auto-reports, PDF exports &amp; more</p>
+</div>
+
+<!-- S2 Data Cleanup -->
+<div class="slide">
+  <h2>Application 1 — Data Cleanup Macro</h2>
+  <div class="scenario-tag">Scenario: Raw data with inconsistent formatting needs cleaning</div>
+  <div class="code-block"><span class="kw">Sub</span> <span class="func">CleanData</span>()
+    Application.ScreenUpdating = <span class="kw">False</span>
+    <span class="kw">On Error GoTo</span> Done
+    
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = ActiveSheet
+    <span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+    lastRow = ws.Cells(ws.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> lastRow
+        <span class="com">' Remove extra spaces</span>
+        ws.Cells(i, <span class="num">1</span>).Value = <span class="func">Trim</span>(ws.Cells(i, <span class="num">1</span>).Value)
+        
+        <span class="com">' Standardize names to Proper Case</span>
+        ws.Cells(i, <span class="num">2</span>).Value = <span class="func">StrConv</span>(ws.Cells(i, <span class="num">2</span>).Value, vbProperCase)
+        
+        <span class="com">' Ensure phone number format (remove non-numeric)</span>
+        <span class="kw">Dim</span> phone <span class="kw">As</span> <span class="type">String</span>
+        phone = ws.Cells(i, <span class="num">3</span>).Value
+        phone = <span class="func">Replace</span>(<span class="func">Replace</span>(<span class="func">Replace</span>(phone, <span class="str">"-"</span>,<span class="str">""</span>), <span class="str">" "</span>,<span class="str">""</span>), <span class="str">"("</span>,<span class="str">""</span>)
+        ws.Cells(i, <span class="num">3</span>).Value = <span class="func">Replace</span>(phone, <span class="str">")"</span>, <span class="str">""</span>)
+        
+        <span class="com">' Flag blank critical cells in red</span>
+        <span class="kw">If</span> ws.Cells(i, <span class="num">1</span>).Value = <span class="str">""</span> <span class="kw">Then</span>
+            ws.Rows(i).Interior.Color = <span class="num">RGB(255, 200, 200)</span>
+        <span class="kw">End If</span>
+    <span class="kw">Next</span> i
+    
+    ws.UsedRange.EntireColumn.AutoFit
+    <span class="func">MsgBox</span> <span class="str">"Cleanup complete! Checked "</span> & (lastRow-<span class="num">1</span>) & <span class="str">" rows."</span>, vbInformation
+
+Done:
+    Application.ScreenUpdating = <span class="kw">True</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S3 Auto Report -->
+<div class="slide">
+  <h2>Application 2 — Monthly Report Generator</h2>
+  <div class="scenario-tag">Scenario: Auto-build a formatted summary sheet from raw data</div>
+  <div class="code-block"><span class="kw">Sub</span> <span class="func">GenerateMonthlyReport</span>()
+    Application.ScreenUpdating = <span class="kw">False</span>
+    
+    <span class="com">' Delete old report sheet if it exists</span>
+    Application.DisplayAlerts = <span class="kw">False</span>
+    <span class="kw">On Error</span> <span class="kw">Resume Next</span>
+    Sheets(<span class="str">"Monthly Report"</span>).Delete
+    <span class="kw">On Error GoTo</span> <span class="num">0</span>
+    Application.DisplayAlerts = <span class="kw">True</span>
+    
+    <span class="com">' Create new report sheet</span>
+    <span class="kw">Dim</span> rpt <span class="kw">As</span> <span class="type">Worksheet</span>
+    Sheets.Add After:=Sheets(Sheets.Count)
+    ActiveSheet.Name = <span class="str">"Monthly Report"</span>
+    <span class="kw">Set</span> rpt = Sheets(<span class="str">"Monthly Report"</span>)
+    
+    <span class="com">' Header</span>
+    <span class="kw">With</span> rpt.Range(<span class="str">"A1:E1"</span>)
+        .Merge
+        .Value = <span class="str">"Monthly Sales Report — "</span> & Format(<span class="func">Date</span>, <span class="str">"MMMM YYYY"</span>)
+        .Font.Bold = <span class="kw">True</span>
+        .Font.Size = <span class="num">16</span>
+        .HorizontalAlignment = xlCenter
+        .Interior.Color = <span class="num">RGB(21, 101, 192)</span>
+        .Font.Color = <span class="num">RGB(255, 255, 255)</span>
+    <span class="kw">End With</span>
+    
+    <span class="com">' Column headers</span>
+    <span class="kw">Dim</span> headers() <span class="kw">As</span> <span class="type">String</span>
+    headers = Split(<span class="str">"Product,Jan,Feb,Mar,Total"</span>, <span class="str">","</span>)
+    <span class="kw">Dim</span> j <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">For</span> j = <span class="num">0</span> <span class="kw">To</span> <span class="num">4</span>
+        <span class="kw">With</span> rpt.Cells(<span class="num">2</span>, j+<span class="num">1</span>)
+            .Value = headers(j)
+            .Font.Bold = <span class="kw">True</span>
+            .Interior.Color = <span class="num">RGB(240, 240, 240)</span>
+        <span class="kw">End With</span>
+    <span class="kw">Next</span> j
+    
+    <span class="com">' Copy summary data from Data sheet</span>
+    <span class="kw">Dim</span> src <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> src = Sheets(<span class="str">"Data"</span>)
+    <span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+    lastRow = src.Cells(src.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    src.Range(<span class="str">"A2:E"</span> & lastRow).Copy rpt.Range(<span class="str">"A3"</span>)
+    
+    rpt.UsedRange.EntireColumn.AutoFit
+    <span class="func">MsgBox</span> <span class="str">"Report created!"</span>, vbInformation
+    Application.ScreenUpdating = <span class="kw">True</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S4 Copy between sheets -->
+<div class="slide">
+  <h2>Application 3 — Copy Filtered Data to New Sheet</h2>
+  <div class="scenario-tag">Scenario: Extract rows matching a criterion into a separate sheet</div>
+  <div class="code-block"><span class="kw">Sub</span> <span class="func">ExtractByDepartment</span>()
+    <span class="kw">Dim</span> dept <span class="kw">As</span> <span class="type">String</span>
+    dept = <span class="func">InputBox</span>(<span class="str">"Enter department to extract:"</span>, <span class="str">"Filter"</span>)
+    <span class="kw">If</span> dept = <span class="str">""</span> <span class="kw">Then</span> <span class="kw">Exit Sub</span>
+    
+    Application.ScreenUpdating = <span class="kw">False</span>
+    
+    <span class="kw">Dim</span> src <span class="kw">As</span> <span class="type">Worksheet</span>, dst <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> src = Sheets(<span class="str">"Data"</span>)
+    
+    <span class="com">' Create destination sheet</span>
+    Application.DisplayAlerts = <span class="kw">False</span>
+    <span class="kw">On Error</span> <span class="kw">Resume Next</span>: Sheets(dept).Delete: <span class="kw">On Error GoTo</span> <span class="num">0</span>
+    Application.DisplayAlerts = <span class="kw">True</span>
+    Sheets.Add After:=Sheets(Sheets.Count)
+    ActiveSheet.Name = dept
+    <span class="kw">Set</span> dst = Sheets(dept)
+    
+    <span class="com">' Copy header row</span>
+    src.Rows(<span class="num">1</span>).Copy dst.Rows(<span class="num">1</span>)
+    
+    <span class="com">' Find and copy matching rows</span>
+    <span class="kw">Dim</span> srcLastRow <span class="kw">As</span> <span class="type">Long</span>
+    srcLastRow = src.Cells(src.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    <span class="kw">Dim</span> dstRow <span class="kw">As</span> <span class="type">Long</span>: dstRow = <span class="num">2</span>
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> srcLastRow
+        <span class="kw">If</span> <span class="func">UCase</span>(src.Cells(i, <span class="num">3</span>).Value) = <span class="func">UCase</span>(dept) <span class="kw">Then</span>
+            src.Rows(i).Copy dst.Rows(dstRow)
+            dstRow = dstRow + <span class="num">1</span>
+        <span class="kw">End If</span>
+    <span class="kw">Next</span> i
+    
+    dst.UsedRange.EntireColumn.AutoFit
+    <span class="func">MsgBox</span> (dstRow-<span class="num">2</span>) & <span class="str">" rows extracted for "</span> & dept, vbInformation
+    Application.ScreenUpdating = <span class="kw">True</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S5 PDF Export -->
+<div class="slide">
+  <h2>Application 4 — Export Sheet to PDF</h2>
+  <div class="scenario-tag">Scenario: Auto-generate and save a PDF report</div>
+  <div class="code-block"><span class="kw">Sub</span> <span class="func">ExportToPDF</span>()
+    <span class="kw">On Error GoTo</span> ErrHandler
+    
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = Sheets(<span class="str">"Monthly Report"</span>)
+    
+    <span class="com">' Build the file path with date stamp</span>
+    <span class="kw">Dim</span> savePath <span class="kw">As</span> <span class="type">String</span>
+    savePath = ThisWorkbook.Path & <span class="str">"\"</span> & _
+               <span class="str">"Report_"</span> & <span class="func">Format</span>(<span class="func">Date</span>, <span class="str">"yyyymmdd"</span>) & <span class="str">".pdf"</span>
+    
+    <span class="com">' Page setup before export</span>
+    <span class="kw">With</span> ws.PageSetup
+        .Orientation = xlLandscape
+        .FitToPagesWide = <span class="num">1</span>
+        .FitToPagesTall = <span class="kw">False</span>
+        .LeftMargin = Application.InchesToPoints(<span class="num">0.5</span>)
+        .RightMargin = Application.InchesToPoints(<span class="num">0.5</span>)
+        .TopMargin = Application.InchesToPoints(<span class="num">0.75</span>)
+        .PrintTitleRows = <span class="str">"$1:$1"</span>    <span class="com">' Repeat header on every page</span>
+    <span class="kw">End With</span>
+    
+    <span class="com">' Export to PDF</span>
+    ws.ExportAsFixedFormat _
+        Type:=xlTypePDF, _
+        Filename:=savePath, _
+        Quality:=xlQualityStandard, _
+        OpenAfterPublish:=<span class="kw">True</span>       <span class="com">' Auto-open the PDF</span>
+    
+    <span class="func">MsgBox</span> <span class="str">"PDF saved: "</span> & savePath, vbInformation
+    <span class="kw">Exit Sub</span>
+    
+ErrHandler:
+    <span class="func">MsgBox</span> <span class="str">"Failed to export PDF: "</span> & Err.Description, vbCritical
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S6 Performance optimization -->
+<div class="slide">
+  <h2>Application 5 — Performance Optimization</h2>
+  <div class="scenario-tag">Scenario: Processing 10,000+ rows — make it fast!</div>
+  <div class="two-col">
+    <div>
+      <h3>❌ Slow Approach (cell by cell)</h3>
+      <div class="code-block" style="font-size:.83em;"><span class="com">' Reading/writing each cell = SLOW</span>
+<span class="kw">For</span> i = <span class="num">1</span> <span class="kw">To</span> <span class="num">10000</span>
+    Cells(i, <span class="num">3</span>).Value = _
+        Cells(i, <span class="num">1</span>).Value * _
+        Cells(i, <span class="num">2</span>).Value
+<span class="kw">Next</span> i
+<span class="com">' May take 30+ seconds!</span></div>
+    </div>
+    <div>
+      <h3>✅ Fast Approach (arrays)</h3>
+      <div class="code-block" style="font-size:.83em;"><span class="com">' Read all to array, process,</span>
+<span class="com">' write back once = FAST</span>
+<span class="kw">Dim</span> a <span class="kw">As</span> <span class="type">Variant</span>
+<span class="kw">Dim</span> b <span class="kw">As</span> <span class="type">Variant</span>
+<span class="kw">Dim</span> c() <span class="kw">As</span> <span class="type">Variant</span>
+a = Range(<span class="str">"A1:A10000"</span>).Value
+b = Range(<span class="str">"B1:B10000"</span>).Value
+<span class="kw">ReDim</span> c(<span class="num">1</span> <span class="kw">To</span> <span class="num">10000</span>, <span class="num">1</span> <span class="kw">To</span> <span class="num">1</span>)
+<span class="kw">For</span> i = <span class="num">1</span> <span class="kw">To</span> <span class="num">10000</span>
+    c(i,<span class="num">1</span>) = a(i,<span class="num">1</span>) * b(i,<span class="num">1</span>)
+<span class="kw">Next</span> i
+Range(<span class="str">"C1:C10000"</span>).Value = c
+<span class="com">' Runs in under 1 second!</span></div>
+    </div>
+  </div>
+  <div class="callout success"><strong>🚀 Performance Checklist</strong>
+    ☑ Application.ScreenUpdating = False<br>
+    ☑ Application.Calculation = xlCalculationManual<br>
+    ☑ Application.EnableEvents = False<br>
+    ☑ Read to array, process, write back<br>
+    ☑ Use .Value2 instead of .Value (slightly faster)<br>
+    ☑ Avoid .Select and .Activate — reference directly!
+  </div>
+</div>
+
+<!-- S7 Event Macros -->
+<div class="slide">
+  <h2>Application 6 — Worksheet Event Macros</h2>
+  <div class="scenario-tag">Scenario: Automatic actions triggered by Excel events</div>
+  <div class="callout info" style="margin-bottom:10px;"><strong>📌 Where to write event code</strong>Double-click the Sheet name (or ThisWorkbook) in Project Explorer — not a regular Module!</div>
+  <div class="code-block"><span class="com">' === In Sheet code (e.g. Sheet1) ===</span>
+
+<span class="com">' Run when a cell is changed by user</span>
+<span class="kw">Private Sub</span> <span class="func">Worksheet_Change</span>(<span class="kw">ByVal</span> Target <span class="kw">As</span> <span class="type">Range</span>)
+    <span class="com">' Only respond to column A changes</span>
+    <span class="kw">If</span> Target.Column &lt;&gt; <span class="num">1</span> <span class="kw">Then</span> <span class="kw">Exit Sub</span>
+    <span class="com">' Only one cell at a time</span>
+    <span class="kw">If</span> Target.Cells.Count > <span class="num">1</span> <span class="kw">Then</span> <span class="kw">Exit Sub</span>
+    
+    Application.EnableEvents = <span class="kw">False</span>   <span class="com">' Prevent recursion!</span>
+    Target.Value = <span class="func">UCase</span>(Target.Value)  <span class="com">' Auto-uppercase col A</span>
+    Application.EnableEvents = <span class="kw">True</span>
+<span class="kw">End Sub</span>
+
+<span class="com">' Run when sheet is selected (activated)</span>
+<span class="kw">Private Sub</span> <span class="func">Worksheet_Activate</span>()
+    Range(<span class="str">"A1"</span>).Select
+    StatusBar = <span class="str">"Welcome to Data Entry Sheet"</span>
+<span class="kw">End Sub</span>
+
+<span class="com">' === In ThisWorkbook code ===</span>
+<span class="com">' Run when workbook opens</span>
+<span class="kw">Private Sub</span> <span class="func">Workbook_Open</span>()
+    Sheets(<span class="str">"Dashboard"</span>).Activate
+    <span class="func">MsgBox</span> <span class="str">"Welcome! Last opened: "</span> & <span class="func">Format</span>(<span class="func">Now</span>(), <span class="str">"yyyy/mm/dd HH:MM"</span>)
+<span class="kw">End Sub</span>
+
+<span class="com">' Run before workbook closes</span>
+<span class="kw">Private Sub</span> <span class="func">Workbook_BeforeClose</span>(Cancel <span class="kw">As</span> <span class="type">Boolean</span>)
+    <span class="kw">If</span> <span class="func">MsgBox</span>(<span class="str">"Save before closing?"</span>, vbYesNo) = vbYes <span class="kw">Then</span>
+        ThisWorkbook.Save
+    <span class="kw">End If</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S8 Auto Email with Outlook -->
+<div class="slide">
+  <h2>Application 7 — Send Email via Outlook</h2>
+  <div class="scenario-tag">Scenario: Auto-send a report email from Excel VBA</div>
+  <div class="code-block"><span class="com">' Requires: Tools → References → Microsoft Outlook Object Library</span>
+
+<span class="kw">Sub</span> <span class="func">SendReportEmail</span>()
+    <span class="kw">Dim</span> outlookApp <span class="kw">As Object</span>
+    <span class="kw">Dim</span> mail <span class="kw">As Object</span>
+    
+    <span class="kw">Set</span> outlookApp = CreateObject(<span class="str">"Outlook.Application"</span>)
+    <span class="kw">Set</span> mail = outlookApp.CreateItem(<span class="num">0</span>)   <span class="com">' 0 = MailItem</span>
+    
+    <span class="kw">With</span> mail
+        .To = <span class="str">"manager@yamaha-motor.com"</span>
+        .CC = <span class="str">"team@yamaha-motor.com"</span>
+        .Subject = <span class="str">"Monthly Sales Report - "</span> & <span class="func">Format</span>(<span class="func">Date</span>, <span class="str">"MMMM YYYY"</span>)
+        .Body = <span class="str">"Hi Team,"</span> & Chr(<span class="num">13</span>) & Chr(<span class="num">13</span>) & _
+                <span class="str">"Please find the monthly report attached."</span> & Chr(<span class="num">13</span>) & _
+                <span class="str">"Generated on: "</span> & Format(<span class="func">Now</span>(), <span class="str">"yyyy/mm/dd HH:MM"</span>)
+        
+        <span class="com">' Attach the current workbook</span>
+        .Attachments.Add ThisWorkbook.FullName
+        
+        <span class="com">' .Send to send immediately, .Display to review first</span>
+        .Display   <span class="com">' Opens Outlook compose window for review</span>
+    <span class="kw">End With</span>
+    
+    <span class="kw">Set</span> mail = <span class="kw">Nothing</span>
+    <span class="kw">Set</span> outlookApp = <span class="kw">Nothing</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S9 Quiz -->
+<div class="slide">
+  <h2>🎯 Module 10 Quiz</h2>
+  <div class="quiz-q">Q1: Why is processing data through an array much faster than cell-by-cell access?</div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Arrays work in RAM — accessing a spreadsheet cell triggers the Excel calculation engine each time, which is much slower.')">Arrays have more memory</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'Correct! Array operations happen entirely in RAM. Each cell access calls the Excel engine, which adds huge overhead with thousands of rows.')">Each cell access calls the Excel engine; arrays work in RAM</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Arrays work in RAM — accessing a spreadsheet cell triggers the Excel calculation engine each time, which is much slower.')">Arrays skip error handling</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Arrays work in RAM — accessing a spreadsheet cell triggers the Excel calculation engine each time, which is much slower.')">Cell access requires saving</div>
+  </div>
+  <div id="q1fb"></div><br>
+  <div class="quiz-q">Q2: Where do you write event code that runs when a workbook opens?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Workbook events like Workbook_Open live in the ThisWorkbook code module.')">Module1</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Workbook events like Workbook_Open live in the ThisWorkbook code module.')">Sheet1 code</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'Correct! Workbook-level events (Open, BeforeClose, etc.) are written in the ThisWorkbook code module.')">ThisWorkbook code module</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Workbook events like Workbook_Open live in the ThisWorkbook code module.')">UserForm1</div>
+  </div>
+  <div id="q2fb"></div>
+</div>
+
+<!-- S10 Summary -->
+<div class="slide title-slide">
+  <div class="big-icon">🎉</div>
+  <h1>Module 10 <span>Complete!</span></h1>
+  <div class="card" style="text-align:left;max-width:540px;margin-top:20px;">
+    <h3>📋 What You Built Today</h3>
+    <ul style="list-style:none;">
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Data cleanup macro — trim, proper case, flag errors</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Monthly report generator — create formatted sheet</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Filter and copy data to new sheets</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Export sheets to PDF with page setup</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Performance optimization with arrays</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Worksheet / Workbook event macros</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Send email via Outlook automation</li>
+    </ul>
+  </div>
+  <p style="margin-top:16px;color:var(--muted);">Next: <b>Module 11 – AI for VBA: Introduction</b> 🤖</p>
+</div>
+
+</div>
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div>
+<div id="np">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--accent);">📝 Notes – M10</b><button class="btn btn-g" style="padding:2px 8px;" onclick="toggleNotes()">✕</button></div>
+  <textarea id="na" placeholder="Notes..."></textarea>
+  <button class="btn btn-a" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;const total=slides.length;
+document.getElementById('tn').textContent=total;
+function show(n){slides[cur].classList.remove('active');cur=Math.max(0,Math.min(n,total-1));slides[cur].classList.add('active');document.getElementById('cn').textContent=cur+1;document.getElementById('pf').style.width=((cur+1)/total*100)+'%';document.getElementById('prevBtn').disabled=cur===0;const nb=document.getElementById('nextBtn');if(cur===total-1){nb.textContent='✓ Complete';nb.classList.add('done');}else{nb.textContent='Next ▶';nb.classList.remove('done');}}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+function checkQ(id,el,ok,msg){document.querySelectorAll('#'+id+' .quiz-opt').forEach(o=>o.style.pointerEvents='none');el.classList.add(ok?'correct':'wrong');const fb=document.getElementById(id.replace('opts','fb'));fb.innerHTML=`<div class="feedback ${ok?'ok':'bad'}">${ok?'✅':'❌'} ${msg}</div>`;}
+function toggleNotes(){document.getElementById('np').classList.toggle('show');}
+function saveNotes(){localStorage.setItem('vba_notes_10',document.getElementById('na').value);alert('Saved!');}
+document.getElementById('na').value=localStorage.getItem('vba_notes_10')||'';
+</script>
+</body>
+</html>

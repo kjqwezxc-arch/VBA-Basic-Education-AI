@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 06 – Excel Object Model</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#2e7d32;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+.pbar{background:#e2e8f0;}.pfill{height:6px;background:var(--accent);transition:width .35s;}
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:36px 60px;display:none;overflow-y:auto;flex-direction:column;justify-content:center;}
+.slide.active{display:flex;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.title-slide{text-align:center;align-items:center;}
+.big-icon{font-size:4.5em;margin-bottom:12px;}
+h1{font-size:2.4em;margin-bottom:10px;}h1 span{color:var(--accent);}
+h2{font-size:1.65em;margin-bottom:10px;color:var(--accent);}h3{font-size:1.15em;color:var(--accent);margin-bottom:6px;}
+p{line-height:1.75;margin-bottom:10px;}
+.subtitle{color:var(--muted);font-size:1.1em;}
+.bullets{list-style:none;margin:10px 0;}
+.bullets li{padding:7px 0 7px 28px;position:relative;line-height:1.6;}
+.bullets li::before{content:'▶';color:var(--accent);position:absolute;left:0;font-size:.7em;top:10px;}
+.bullets li b{color:var(--accent);}
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:12px 16px;border-radius:0 10px 10px 0;margin:10px 0;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout strong{display:block;margin-bottom:3px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0;}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px 18px;font-family:'Cascadia Code','Consolas',monospace;font-size:.91em;white-space:pre;overflow-x:auto;margin:12px 0;line-height:1.65;color:#d4d4d4;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}
+/* Object hierarchy diagram */
+.obj-tree{margin:14px 0;}
+.obj-node{padding:8px 16px;border-radius:6px;margin:4px 0;display:inline-flex;align-items:center;gap:8px;}
+.obj-level-0{background:#1565c0;border-left:4px solid #64b5f6;}
+.obj-level-1{background:#1b5e20;border-left:4px solid #4caf50;margin-left:30px;}
+.obj-level-2{background:#4a148c;border-left:4px solid #ce93d8;margin-left:60px;}
+.obj-level-3{background:#e65100;border-left:4px solid #ff8f00;margin-left:90px;}
+/* Excel sim */
+.excel-sim{background:#fff;color:#000;border:1px solid #999;border-radius:4px;overflow:hidden;margin:12px 0;font-size:.82em;font-family:Arial,sans-serif;}
+.excel-hdr{background:#217346;color:#fff;padding:4px 10px;font-weight:bold;}
+.excel-grid{overflow-x:auto;}
+.excel-grid table{border-collapse:collapse;min-width:400px;}
+.excel-grid th{background:#f2f2f2;color:#555;padding:3px 18px;border:1px solid #d0d0d0;font-weight:normal;text-align:center;}
+.excel-grid td{background:#fff;color:#000;padding:4px 8px;border:1px solid #e0e0e0;min-width:80px;}
+.excel-grid td.hl{background:#fff3cd;border:2px solid #ff8f00;}
+.excel-grid td.sel{background:#cce5ff;border:2px solid #0d6efd;}
+.quiz-q{font-size:1.1em;font-weight:600;margin-bottom:10px;}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:9px 14px;margin:5px 0;cursor:pointer;transition:all .2s;}
+.quiz-opt:hover{border-color:var(--accent);}.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:9px 14px;border-radius:8px;margin-top:8px;font-size:.9em;}
+.feedback.ok{background:rgba(76,175,80,.12);border-left:3px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.12);border-left:3px solid var(--red);}
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;}
+.nav-btn:hover{background:#e2e8f0;color:var(--text);}.nav-btn:disabled{opacity:.3;cursor:default;}.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+.btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;}
+.btn-a{background:var(--accent);color:#000;}.btn-g{background:#e2e8f0;color:var(--text);}
+#np{display:none;position:fixed;bottom:60px;right:16px;width:300px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+#np.show{display:block;}
+#np textarea{width:100%;height:110px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.85em;}
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="badge">Module 06</div>
+  <span class="htitle">📊 Excel Object Model</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">11</span> &nbsp;|&nbsp; ⏱ 45 min &nbsp;|&nbsp; 🟡 Intermediate
+    <button class="btn btn-g" style="padding:4px 10px;font-size:.78em;margin-left:12px;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+<div class="scontainer">
+
+<div class="slide title-slide active">
+  <div class="big-icon">📊</div>
+  <h1>Excel <span>Object Model</span></h1>
+  <p class="subtitle">Master Workbooks, Worksheets, Ranges, and Cells — the core of Excel VBA</p>
+</div>
+
+<!-- S2 Object Hierarchy -->
+<div class="slide">
+  <h2>The Excel Object Hierarchy</h2>
+  <p>Everything in Excel VBA is an <b>object</b>. Objects are organized in a parent-child hierarchy:</p>
+  <div class="obj-tree">
+    <div class="obj-node obj-level-0">📱 Application (Excel itself)</div>
+    <div class="obj-node obj-level-1">📁 Workbooks Collection</div>
+    <div class="obj-node obj-level-2">📒 Workbook (one file)</div>
+    <div class="obj-node obj-level-3">📄 Worksheets → Worksheet</div>
+    <div class="obj-node obj-level-3">📊 Charts → Chart</div>
+    <div class="obj-node obj-level-3">📋 Names → Name</div>
+  </div>
+  <div class="callout info">
+    <strong>🔗 How you navigate the hierarchy</strong>
+    <code>Application.Workbooks("Book1.xlsm").Worksheets("Sheet1").Range("A1").Value = "Hello"</code>
+    <br>Usually you can shorten this — VBA assumes the active workbook/sheet.
+  </div>
+</div>
+
+<!-- S3 Workbooks -->
+<div class="slide">
+  <h2>Workbooks — Managing Excel Files</h2>
+  <div class="code-block"><span class="com">' Reference workbooks</span>
+<span class="kw">Dim</span> wb <span class="kw">As</span> <span class="type">Workbook</span>
+
+<span class="func">ThisWorkbook</span>           <span class="com">' The file containing this VBA code</span>
+<span class="func">ActiveWorkbook</span>         <span class="com">' Currently active file</span>
+Workbooks(<span class="str">"Report.xlsx"</span>)  <span class="com">' By name</span>
+Workbooks(<span class="num">1</span>)             <span class="com">' By index (first open workbook)</span>
+
+<span class="com">' Open a workbook</span>
+<span class="kw">Set</span> wb = Workbooks.Open(<span class="str">"C:\Data\Report.xlsx"</span>)
+
+<span class="com">' Create a new workbook</span>
+<span class="kw">Set</span> wb = Workbooks.Add
+
+<span class="com">' Save workbook</span>
+wb.Save
+wb.SaveAs <span class="str">"C:\Data\NewReport.xlsx"</span>
+
+<span class="com">' Close workbook</span>
+wb.Close SaveChanges:=<span class="kw">True</span>
+
+<span class="com">' Check if a workbook is open</span>
+<span class="kw">Function</span> <span class="func">IsWorkbookOpen</span>(<span class="kw">ByVal</span> wbName <span class="kw">As</span> <span class="type">String</span>) <span class="kw">As</span> <span class="type">Boolean</span>
+    <span class="kw">On Error</span> <span class="kw">Resume Next</span>
+    IsWorkbookOpen = (Workbooks(wbName).Name = wbName)
+    <span class="kw">On Error GoTo</span> <span class="num">0</span>
+<span class="kw">End Function</span></div>
+</div>
+
+<!-- S4 Worksheets -->
+<div class="slide">
+  <h2>Worksheets — Working with Sheets</h2>
+  <div class="code-block"><span class="com">' Reference worksheets</span>
+<span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+
+ActiveSheet                <span class="com">' Currently visible sheet</span>
+Sheets(<span class="str">"Sales"</span>)           <span class="com">' By tab name</span>
+Worksheets(<span class="num">1</span>)             <span class="com">' By index (leftmost = 1)</span>
+<span class="kw">Set</span> ws = Sheets(<span class="str">"Data"</span>)
+
+<span class="com">' Add a new sheet</span>
+Sheets.Add After:=Sheets(Sheets.Count)
+ActiveSheet.Name = <span class="str">"NewSheet"</span>
+
+<span class="com">' Loop through all sheets</span>
+<span class="kw">For Each</span> ws <span class="kw">In</span> ThisWorkbook.Worksheets
+    ws.Tab.Color = <span class="num">RGB(255, 143, 0)</span>
+<span class="kw">Next</span> ws
+
+<span class="com">' Check if sheet exists</span>
+<span class="kw">Function</span> <span class="func">SheetExists</span>(<span class="kw">ByVal</span> shName <span class="kw">As</span> <span class="type">String</span>) <span class="kw">As</span> <span class="type">Boolean</span>
+    <span class="kw">On Error</span> <span class="kw">Resume Next</span>
+    SheetExists = (Sheets(shName).Name = shName)
+    <span class="kw">On Error GoTo</span> <span class="num">0</span>
+<span class="kw">End Function</span>
+
+<span class="com">' Common sheet properties</span>
+ws.Visible = xlSheetHidden   <span class="com">' Hide sheet</span>
+ws.Protect Password:=<span class="str">"1234"</span>  <span class="com">' Protect sheet</span></div>
+</div>
+
+<!-- S5 Range and Cells -->
+<div class="slide">
+  <h2>Range &amp; Cells — Accessing Cell Data</h2>
+  <div class="two-col">
+    <div>
+      <div class="code-block"><span class="com">' Range — by address</span>
+Range(<span class="str">"A1"</span>)            <span class="com">' Single cell</span>
+Range(<span class="str">"A1:C5"</span>)        <span class="com">' Block of cells</span>
+Range(<span class="str">"A:A"</span>)           <span class="com">' Entire column A</span>
+Range(<span class="str">"1:1"</span>)           <span class="com">' Entire row 1</span>
+
+<span class="com">' Cells — by row, column number</span>
+Cells(<span class="num">1</span>, <span class="num">1</span>)           <span class="com">' A1 (row 1, col 1)</span>
+Cells(<span class="num">3</span>, <span class="num">4</span>)           <span class="com">' D3 (row 3, col 4)</span>
+
+<span class="com">' Combining Range and Cells</span>
+Range(Cells(<span class="num">1</span>,<span class="num">1</span>), Cells(<span class="num">5</span>,<span class="num">3</span>))  <span class="com">' A1:C5</span>
+
+<span class="com">' Read and write values</span>
+Range(<span class="str">"A1"</span>).Value = <span class="str">"Hello"</span>
+<span class="kw">Dim</span> v <span class="kw">As</span> <span class="type">String</span>
+v = Range(<span class="str">"A1"</span>).Value</div>
+    </div>
+    <div>
+      <div class="code-block"><span class="com">' Navigate relative to a cell</span>
+Range(<span class="str">"B2"</span>).Offset(<span class="num">1</span>, <span class="num">0</span>)  <span class="com">' B3 (1 row down)</span>
+Range(<span class="str">"B2"</span>).Offset(<span class="num">0</span>, <span class="num">1</span>)  <span class="com">' C2 (1 col right)</span>
+Range(<span class="str">"B2"</span>).Offset(-<span class="num">1</span>, <span class="num">0</span>) <span class="com">' B1 (1 row up)</span>
+
+<span class="com">' Find last row and column</span>
+<span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+lastRow = Cells(Rows.Count, <span class="num">1</span>).End(xlUp).Row
+
+<span class="kw">Dim</span> lastCol <span class="kw">As</span> <span class="type">Long</span>
+lastCol = Cells(<span class="num">1</span>, Columns.Count).End(xlToLeft).Column
+
+<span class="com">' Resize a range</span>
+Range(<span class="str">"A1"</span>).Resize(<span class="num">5</span>, <span class="num">3</span>)   <span class="com">' 5 rows, 3 cols</span>
+
+<span class="com">' EntireRow and EntireColumn</span>
+Range(<span class="str">"A5"</span>).EntireRow.Delete
+Range(<span class="str">"C1"</span>).EntireColumn.Hidden = <span class="kw">True</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S6 Cell Properties -->
+<div class="slide">
+  <h2>Cell Properties — Formatting</h2>
+  <div class="code-block"><span class="kw">With</span> Range(<span class="str">"A1:D1"</span>)
+    <span class="com">' Value and format</span>
+    .Value = <span class="str">"Monthly Report"</span>
+    .NumberFormat = <span class="str">"#,##0.00"</span>   <span class="com">' Number with commas</span>
+    .NumberFormat = <span class="str">"yyyy/mm/dd"</span>   <span class="com">' Date format</span>
+    
+    <span class="com">' Font</span>
+    .Font.Bold = <span class="kw">True</span>
+    .Font.Size = <span class="num">14</span>
+    .Font.Name = <span class="str">"Calibri"</span>
+    .Font.Color = <span class="num">RGB(255, 255, 255)</span>
+    
+    <span class="com">' Background</span>
+    .Interior.Color = <span class="num">RGB(21, 101, 192)</span>
+    
+    <span class="com">' Borders</span>
+    .Borders.LineStyle = xlContinuous
+    .Borders.Weight = xlMedium
+    .Borders.Color = <span class="num">RGB(0, 0, 0)</span>
+    
+    <span class="com">' Alignment</span>
+    .HorizontalAlignment = xlCenter
+    .VerticalAlignment = xlVCenter
+    .WrapText = <span class="kw">True</span>
+    
+    <span class="com">' Merge cells</span>
+    .Merge
+<span class="kw">End With</span></div>
+</div>
+
+<!-- S7 UsedRange and Dynamic Ranges -->
+<div class="slide">
+  <h2>UsedRange &amp; Dynamic Data Processing</h2>
+  <div class="code-block"><span class="com">' Find the actual data range dynamically</span>
+<span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+<span class="kw">Set</span> ws = ActiveSheet
+
+<span class="com">' UsedRange = rectangle covering all used cells</span>
+<span class="kw">Dim</span> used <span class="kw">As</span> <span class="type">Range</span>
+<span class="kw">Set</span> used = ws.UsedRange
+<span class="func">MsgBox</span> <span class="str">"Data: "</span> & used.Rows.Count & <span class="str">" rows x "</span> & used.Columns.Count & <span class="str">" cols"</span>
+
+<span class="com">' Find last row with data in column A</span>
+<span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+lastRow = ws.Cells(ws.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+
+<span class="com">' Process all data rows (skip header row 1)</span>
+<span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+<span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> lastRow
+    <span class="kw">With</span> ws.Cells(i, <span class="num">5</span>)  <span class="com">' Column E</span>
+        .Value = ws.Cells(i, <span class="num">3</span>).Value * ws.Cells(i, <span class="num">4</span>).Value
+    <span class="kw">End With</span>
+<span class="kw">Next</span> i
+
+<span class="com">' Auto-fit columns after filling data</span>
+ws.UsedRange.EntireColumn.AutoFit</div>
+  <div class="callout success"><strong>✅ Speed Tip</strong>When writing many cells, read the whole range into an array first, process in memory, then write back. Can be 100x faster than cell-by-cell access!</div>
+</div>
+
+<!-- S8 Application Object -->
+<div class="slide">
+  <h2>Application Object — Excel Settings</h2>
+  <div class="code-block"><span class="com">' Performance: turn off screen updates and auto-calc</span>
+Application.ScreenUpdating = <span class="kw">False</span>   <span class="com">' Prevent screen flicker</span>
+Application.Calculation = xlCalculationManual  <span class="com">' Stop auto-calc</span>
+Application.EnableEvents = <span class="kw">False</span>    <span class="com">' Disable event triggers</span>
+
+<span class="com">' ... your code here ...</span>
+
+<span class="com">' ALWAYS restore at the end!</span>
+Application.ScreenUpdating = <span class="kw">True</span>
+Application.Calculation = xlCalculationAutomatic
+Application.EnableEvents = <span class="kw">True</span>
+
+<span class="com">' Status bar message</span>
+Application.StatusBar = <span class="str">"Processing... Please wait"</span>
+Application.StatusBar = <span class="kw">False</span>   <span class="com">' Clear when done</span>
+
+<span class="com">' Show/hide alerts</span>
+Application.DisplayAlerts = <span class="kw">False</span>   <span class="com">' No "Save?" dialogs</span>
+Application.DisplayAlerts = <span class="kw">True</span>    <span class="com">' Restore!</span>
+
+<span class="com">' Wait / cursor</span>
+Application.Cursor = xlWait       <span class="com">' Hourglass cursor</span>
+Application.Cursor = xlDefault    <span class="com">' Normal cursor</span>
+
+<span class="com">' Use worksheet functions</span>
+<span class="kw">Dim</span> total <span class="kw">As</span> <span class="type">Double</span>
+total = Application.WorksheetFunction.Sum(Range(<span class="str">"A1:A100"</span>))</div>
+</div>
+
+<!-- S9 Demo -->
+<div class="slide">
+  <h2>🎬 Demo — Reading &amp; Writing a Data Table</h2>
+  <div class="two-col">
+    <div>
+      <div class="callout info" style="font-size:.9em;"><strong>Scenario:</strong> We have sales data in columns A–C. Write a macro to calculate total (qty × price) in column D for all rows.</div>
+      <div class="code-block" style="font-size:.84em;"><span class="kw">Sub</span> <span class="func">CalcTotals</span>()
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    
+    <span class="kw">Set</span> ws = ActiveSheet
+    lastRow = ws.Cells( _
+        ws.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    
+    <span class="com">' Write header</span>
+    ws.Cells(<span class="num">1</span>, <span class="num">4</span>).Value = <span class="str">"Total"</span>
+    
+    <span class="com">' Calculate each row</span>
+    <span class="kw">For</span> i = <span class="num">2</span> <span class="kw">To</span> lastRow
+        ws.Cells(i, <span class="num">4</span>).Value = _
+            ws.Cells(i, <span class="num">2</span>) * ws.Cells(i, <span class="num">3</span>)
+    <span class="kw">Next</span> i
+    
+    ws.Columns(<span class="str">"D"</span>).AutoFit
+<span class="kw">End Sub</span></div>
+    </div>
+    <div>
+      <div class="excel-sim">
+        <div class="excel-hdr">📊 Sheet1</div>
+        <div class="excel-grid">
+          <table>
+            <tr><th></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+            <tr><td style="background:#f2f2f2;padding:3px 8px;border:1px solid #d0d0d0;color:#555;">1</td><td><b>Product</b></td><td><b>Qty</b></td><td><b>Price</b></td><td class="hl"><b>Total</b></td></tr>
+            <tr><td style="background:#f2f2f2;padding:3px 8px;border:1px solid #d0d0d0;color:#555;">2</td><td>MT-09</td><td>3</td><td>1,250,000</td><td class="sel">3,750,000</td></tr>
+            <tr><td style="background:#f2f2f2;padding:3px 8px;border:1px solid #d0d0d0;color:#555;">3</td><td>YZF-R3</td><td>5</td><td>580,000</td><td class="sel">2,900,000</td></tr>
+            <tr><td style="background:#f2f2f2;padding:3px 8px;border:1px solid #d0d0d0;color:#555;">4</td><td>NMAX</td><td>10</td><td>330,000</td><td class="sel">3,300,000</td></tr>
+          </table>
+        </div>
+      </div>
+      <p style="color:var(--muted);font-size:.88em;margin-top:6px;">Column D is auto-calculated and formatted by the macro.</p>
+    </div>
+  </div>
+</div>
+
+<!-- S10 Quiz -->
+<div class="slide">
+  <h2>🎯 Module 6 Quiz</h2>
+  <div class="quiz-q">Q1: Which is the best way to reference the file that contains your VBA code?</div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'ThisWorkbook always refers to the file containing the code, regardless of which file is active.')">ActiveWorkbook</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'Correct! ThisWorkbook always refers to the workbook containing the VBA code, even if another workbook is active.')">ThisWorkbook</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'ThisWorkbook always refers to the file containing the code.')">Workbooks(1)</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'ThisWorkbook always refers to the file containing the code.')">Sheets("Sheet1")</div>
+  </div>
+  <div id="q1fb"></div><br>
+  <div class="quiz-q">Q2: How do you find the last row with data in column A?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'The correct method uses Rows.Count and End(xlUp).Row')">Cells(100, 1)</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'Correct! Cells(Rows.Count, 1).End(xlUp).Row finds the actual last used row.')">Cells(Rows.Count, 1).End(xlUp).Row</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'The correct method uses Rows.Count and End(xlUp).Row')">Range("A:A").Count</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'The correct method uses Rows.Count and End(xlUp).Row')">UsedRange.Count</div>
+  </div>
+  <div id="q2fb"></div>
+</div>
+
+<!-- S11 Summary -->
+<div class="slide title-slide">
+  <div class="big-icon">🎉</div>
+  <h1>Module 6 <span>Complete!</span></h1>
+  <div class="card" style="text-align:left;max-width:520px;margin-top:20px;">
+    <h3>📋 Key Takeaways</h3>
+    <ul class="bullets">
+      <li><b>ThisWorkbook</b> = your file; <b>ActiveWorkbook</b> = current active file</li>
+      <li><b>Range("A1")</b> and <b>Cells(row, col)</b> are two ways to reference cells</li>
+      <li><b>Offset()</b> and <b>Resize()</b> navigate relative to a cell</li>
+      <li>Always use <b>Cells(Rows.Count,1).End(xlUp).Row</b> for dynamic last row</li>
+      <li>Turn off <b>ScreenUpdating</b> for faster macros</li>
+      <li><b>Application.WorksheetFunction</b> gives access to Excel functions</li>
+    </ul>
+  </div>
+  <p style="margin-top:16px;color:var(--muted);">Next: <b>Module 07 – Built-in Functions</b></p>
+</div>
+
+</div>
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div>
+<div id="np">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--accent);">📝 Notes – M06</b><button class="btn btn-g" style="padding:2px 8px;" onclick="toggleNotes()">✕</button></div>
+  <textarea id="na" placeholder="Notes..."></textarea>
+  <button class="btn btn-a" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;const total=slides.length;
+document.getElementById('tn').textContent=total;
+function show(n){slides[cur].classList.remove('active');cur=Math.max(0,Math.min(n,total-1));slides[cur].classList.add('active');document.getElementById('cn').textContent=cur+1;document.getElementById('pf').style.width=((cur+1)/total*100)+'%';document.getElementById('prevBtn').disabled=cur===0;const nb=document.getElementById('nextBtn');if(cur===total-1){nb.textContent='✓ Complete';nb.classList.add('done');}else{nb.textContent='Next ▶';nb.classList.remove('done');}}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+function checkQ(id,el,ok,msg){document.querySelectorAll('#'+id+' .quiz-opt').forEach(o=>o.style.pointerEvents='none');el.classList.add(ok?'correct':'wrong');const fb=document.getElementById(id.replace('opts','fb'));fb.innerHTML=`<div class="feedback ${ok?'ok':'bad'}">${ok?'✅':'❌'} ${msg}</div>`;}
+function toggleNotes(){document.getElementById('np').classList.toggle('show');}
+function saveNotes(){localStorage.setItem('vba_notes_06',document.getElementById('na').value);alert('Saved!');}
+document.getElementById('na').value=localStorage.getItem('vba_notes_06')||'';
+</script>
+</body>
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 09 – UserForms &amp; UI</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#2e7d32;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+.pbar{background:#e2e8f0;}.pfill{height:6px;background:var(--accent);transition:width .35s;}
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:36px 60px;display:none;overflow-y:auto;flex-direction:column;justify-content:center;}
+.slide.active{display:flex;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.title-slide{text-align:center;align-items:center;}
+.big-icon{font-size:4.5em;margin-bottom:12px;}
+h1{font-size:2.4em;margin-bottom:10px;}h1 span{color:var(--accent);}
+h2{font-size:1.65em;margin-bottom:10px;color:var(--accent);}h3{font-size:1.15em;color:var(--accent);margin-bottom:6px;}
+p{line-height:1.75;margin-bottom:10px;}
+.subtitle{color:var(--muted);font-size:1.1em;}
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:12px 16px;border-radius:0 10px 10px 0;margin:10px 0;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout strong{display:block;margin-bottom:3px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:10px 0;}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px 18px;font-family:'Cascadia Code','Consolas',monospace;font-size:.91em;white-space:pre;overflow-x:auto;margin:12px 0;line-height:1.65;color:#d4d4d4;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}
+/* Form mockup */
+.form-mockup{background:#f0f0f0;border:2px solid #999;border-radius:4px;padding:0;width:360px;font-family:Arial,sans-serif;font-size:13px;color:#000;}
+.form-titlebar{background:#0d47a1;color:#fff;padding:5px 10px;display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.form-titlebar button{background:#c0392b;color:#fff;border:none;padding:1px 7px;cursor:pointer;font-size:11px;}
+.form-body{padding:14px;}
+.fm-row{margin-bottom:10px;}
+.fm-label{font-weight:bold;display:block;margin-bottom:3px;font-size:12px;}
+.fm-input{width:100%;border:1px solid #aaa;padding:4px 6px;background:#fff;font-size:12px;}
+.fm-input:focus{outline:2px solid #0d47a1;}
+.fm-select{width:100%;border:1px solid #aaa;padding:4px 6px;background:#fff;font-size:12px;}
+.fm-btn{padding:6px 18px;border:1px solid #aaa;cursor:pointer;font-size:12px;margin-right:6px;}
+.fm-btn-ok{background:#217346;color:#fff;border-color:#217346;}
+.fm-chk{margin-right:5px;}
+.ctrl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0;}
+.ctrl-card{background:var(--card);border:1px solid #30363d;border-radius:8px;padding:10px;text-align:center;}
+.ctrl-icon{font-size:1.8em;margin-bottom:4px;}
+.ctrl-name{color:var(--accent);font-size:.85em;font-weight:600;}
+.ctrl-desc{color:var(--muted);font-size:.75em;margin-top:2px;}
+.quiz-q{font-size:1.1em;font-weight:600;margin-bottom:10px;}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:9px 14px;margin:5px 0;cursor:pointer;transition:all .2s;}
+.quiz-opt:hover{border-color:var(--accent);}.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:9px 14px;border-radius:8px;margin-top:8px;font-size:.9em;}
+.feedback.ok{background:rgba(76,175,80,.12);border-left:3px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.12);border-left:3px solid var(--red);}
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;}
+.nav-btn:hover{background:#e2e8f0;color:var(--text);}.nav-btn:disabled{opacity:.3;cursor:default;}.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+.btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;}
+.btn-a{background:var(--accent);color:#000;}.btn-g{background:#e2e8f0;color:var(--text);}
+#np{display:none;position:fixed;bottom:60px;right:16px;width:300px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+#np.show{display:block;}
+#np textarea{width:100%;height:110px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.85em;}
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="badge">Module 09</div>
+  <span class="htitle">🖥️ UserForms &amp; UI</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">11</span> &nbsp;|&nbsp; ⏱ 40 min &nbsp;|&nbsp; 🟡 Intermediate
+    <button class="btn btn-g" style="padding:4px 10px;font-size:.78em;margin-left:12px;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+<div class="scontainer">
+
+<!-- S1 Title -->
+<div class="slide title-slide active">
+  <div class="big-icon">🖥️</div>
+  <h1>UserForms <span>&amp; UI</span></h1>
+  <p class="subtitle">Build professional dialog boxes and data-entry forms with VBA</p>
+</div>
+
+<!-- S2 What is a UserForm -->
+<div class="slide">
+  <h2>What is a UserForm?</h2>
+  <div class="two-col">
+    <div>
+      <p>A <b>UserForm</b> is a custom dialog box you design visually in the VBE. It replaces multiple InputBox/MsgBox calls with a professional interface.</p>
+      <div class="callout success"><strong>✅ Why use UserForms?</strong>
+        • Collect multiple inputs at once<br>
+        • Input validation before processing<br>
+        • Professional look for your tools<br>
+        • Dropdown lists, checkboxes, buttons<br>
+        • Reusable across projects
+      </div>
+      <div class="callout info"><strong>📌 How to create</strong>VBE → Insert menu → UserForm → Design visually using Toolbox → Write event code behind the form</div>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:center;">
+      <div class="form-mockup">
+        <div class="form-titlebar">
+          <span>📊 Employee Data Entry</span>
+          <button>✕</button>
+        </div>
+        <div class="form-body">
+          <div class="fm-row"><label class="fm-label">Employee Name:</label><input class="fm-input" value="Tanaka Hiroshi" readonly></div>
+          <div class="fm-row"><label class="fm-label">Department:</label><select class="fm-select"><option>Engineering</option></select></div>
+          <div class="fm-row"><label class="fm-label">Date Joined:</label><input class="fm-input" value="2024/04/01" readonly></div>
+          <div class="fm-row"><input type="checkbox" class="fm-chk" checked><label>Full-time employee</label></div>
+          <div style="margin-top:14px;text-align:right;"><button class="fm-btn fm-btn-ok">✓ Submit</button><button class="fm-btn">✕ Cancel</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S3 Common Controls -->
+<div class="slide">
+  <h2>Common UserForm Controls</h2>
+  <div class="ctrl-grid">
+    <div class="ctrl-card"><div class="ctrl-icon">📝</div><div class="ctrl-name">TextBox</div><div class="ctrl-desc">Free text input. Get value with .Text</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">🏷️</div><div class="ctrl-name">Label</div><div class="ctrl-desc">Display text. Set .Caption</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">🔘</div><div class="ctrl-name">CommandButton</div><div class="ctrl-desc">Clickable button. Use _Click event</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">📋</div><div class="ctrl-name">ComboBox</div><div class="ctrl-desc">Dropdown list. .AddItem / .Value</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">📄</div><div class="ctrl-name">ListBox</div><div class="ctrl-desc">Scrollable list. Multi-select option</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">☑️</div><div class="ctrl-name">CheckBox</div><div class="ctrl-desc">True/False toggle. .Value = True/False</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">⭕</div><div class="ctrl-name">OptionButton</div><div class="ctrl-desc">Radio button. Use within Frame</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">🖼️</div><div class="ctrl-name">Frame</div><div class="ctrl-desc">Groups OptionButtons together</div></div>
+    <div class="ctrl-card"><div class="ctrl-icon">🔢</div><div class="ctrl-name">SpinButton</div><div class="ctrl-desc">Up/Down arrows for number input</div></div>
+  </div>
+</div>
+
+<!-- S4 Creating a UserForm -->
+<div class="slide">
+  <h2>Creating a UserForm — Step by Step</h2>
+  <div class="two-col">
+    <div>
+      <h3>Step 1: Add the Form</h3>
+      <div class="callout" style="font-size:.88em;">VBE → Insert → UserForm<br>Toolbox panel appears automatically</div>
+      <h3 style="margin-top:10px;">Step 2: Set Properties</h3>
+      <div class="callout" style="font-size:.88em;">Click the form → Properties window (F4)<br>Change Name, Caption, Width, Height</div>
+      <h3 style="margin-top:10px;">Step 3: Add Controls</h3>
+      <div class="callout" style="font-size:.88em;">Drag controls from Toolbox onto form<br>Click each control → set properties in F4</div>
+      <h3 style="margin-top:10px;">Step 4: Write Code</h3>
+      <div class="callout" style="font-size:.88em;">Double-click a button → VBE creates the Click event procedure for you</div>
+    </div>
+    <div>
+      <div class="code-block" style="font-size:.83em;"><span class="com">' Naming convention for controls:</span>
+<span class="com">' txtName     → TextBox for Name</span>
+<span class="com">' txtAge      → TextBox for Age</span>
+<span class="com">' cboDepart   → ComboBox for Department</span>
+<span class="com">' chkFT       → CheckBox for Full-time</span>
+<span class="com">' btnSubmit   → CommandButton Submit</span>
+<span class="com">' btnCancel   → CommandButton Cancel</span>
+
+<span class="com">' Form Initialize event (setup)</span>
+<span class="kw">Private Sub</span> <span class="func">UserForm_Initialize</span>()
+    <span class="com">' Fill the department dropdown</span>
+    cboDepart.AddItem <span class="str">"Engineering"</span>
+    cboDepart.AddItem <span class="str">"Sales"</span>
+    cboDepart.AddItem <span class="str">"Administration"</span>
+    cboDepart.ListIndex = <span class="num">0</span>  <span class="com">' Select first</span>
+    
+    <span class="com">' Set default value</span>
+    txtDate.Text = Format(<span class="func">Date</span>, <span class="str">"yyyy/mm/dd"</span>)
+<span class="kw">End Sub</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- S5 Button Events -->
+<div class="slide">
+  <h2>Button Events — Reading &amp; Validating Input</h2>
+  <div class="code-block"><span class="com">' Submit button click event</span>
+<span class="kw">Private Sub</span> <span class="func">btnSubmit_Click</span>()
+    <span class="com">' 1. Validate input first</span>
+    <span class="kw">If</span> <span class="func">Trim</span>(txtName.Text) = <span class="str">""</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Please enter a name!"</span>, vbExclamation
+        txtName.SetFocus    <span class="com">' Move cursor back to the field</span>
+        <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+    
+    <span class="kw">If</span> cboDepart.Value = <span class="str">""</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Please select a department!"</span>, vbExclamation
+        <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+    
+    <span class="com">' 2. Write data to next empty row</span>
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = Sheets(<span class="str">"Data"</span>)
+    <span class="kw">Dim</span> nextRow <span class="kw">As</span> <span class="type">Long</span>
+    nextRow = ws.Cells(ws.Rows.Count, <span class="num">1</span>).End(xlUp).Row + <span class="num">1</span>
+    
+    ws.Cells(nextRow, <span class="num">1</span>).Value = txtName.Text
+    ws.Cells(nextRow, <span class="num">2</span>).Value = cboDepart.Value
+    ws.Cells(nextRow, <span class="num">3</span>).Value = chkFT.Value
+    ws.Cells(nextRow, <span class="num">4</span>).Value = <span class="func">Now</span>()
+    
+    <span class="func">MsgBox</span> <span class="str">"Data saved!"</span>, vbInformation
+    <span class="kw">Unload Me</span>    <span class="com">' Close the form</span>
+<span class="kw">End Sub</span>
+
+<span class="kw">Private Sub</span> <span class="func">btnCancel_Click</span>()
+    <span class="kw">Unload Me</span>    <span class="com">' Close without saving</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S6 Show/Hide -->
+<div class="slide">
+  <h2>Showing &amp; Hiding Forms</h2>
+  <div class="two-col">
+    <div>
+      <div class="code-block"><span class="com">' Show a form from a regular macro</span>
+<span class="kw">Sub</span> <span class="func">OpenDataEntry</span>()
+    UserForm1.Show         <span class="com">' Modal (default)</span>
+<span class="kw">End Sub</span>
+
+<span class="com">' Show as modeless (non-blocking)</span>
+UserForm1.Show vbModeless
+
+<span class="com">' Load (prepare) without showing</span>
+<span class="kw">Load</span> UserForm1
+UserForm1.txtName.Text = <span class="str">"Default"</span>
+UserForm1.Show
+
+<span class="com">' Hide (keep in memory)</span>
+UserForm1.Hide
+
+<span class="com">' Unload (remove from memory)</span>
+<span class="kw">Unload</span> UserForm1
+
+<span class="com">' Close on X button click</span>
+<span class="kw">Private Sub</span> <span class="func">UserForm_QueryClose</span>( _
+    Cancel <span class="kw">As</span> <span class="type">Integer</span>, _
+    CloseMode <span class="kw">As</span> <span class="type">Integer</span>)
+    <span class="kw">If</span> CloseMode = vbFormControlMenu <span class="kw">Then</span>
+        Cancel = <span class="kw">True</span>   <span class="com">' Prevent X-close</span>
+        <span class="func">MsgBox</span> <span class="str">"Use Cancel button!"</span>
+    <span class="kw">End If</span>
+<span class="kw">End Sub</span></div>
+    </div>
+    <div>
+      <h3>Modal vs Modeless</h3>
+      <div class="card" style="margin-bottom:10px;">
+        <p style="font-size:.9em;"><b style="color:var(--accent);">Modal</b> (default) — user MUST respond to the form before clicking anything else in Excel. Best for data entry.</p>
+      </div>
+      <div class="card">
+        <p style="font-size:.9em;"><b style="color:var(--accent);">Modeless</b> — user can interact with Excel while the form is open. Good for toolbars/panels.</p>
+      </div>
+      <div class="callout info" style="margin-top:10px;"><strong>📌 Unload vs Hide</strong>Use <b>Hide</b> to keep the form data in memory. Use <b>Unload</b> to fully remove the form and free memory.</div>
+    </div>
+  </div>
+</div>
+
+<!-- S7 ComboBox and ListBox -->
+<div class="slide">
+  <h2>ComboBox &amp; ListBox — Working with Lists</h2>
+  <div class="code-block"><span class="com">' ComboBox — Initialize with items</span>
+<span class="kw">Private Sub</span> <span class="func">UserForm_Initialize</span>()
+    <span class="com">' Add items manually</span>
+    cboStatus.AddItem <span class="str">"Pending"</span>
+    cboStatus.AddItem <span class="str">"In Progress"</span>
+    cboStatus.AddItem <span class="str">"Complete"</span>
+    
+    <span class="com">' OR load from a worksheet range</span>
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = Sheets(<span class="str">"Reference"</span>)
+    <span class="kw">Dim</span> lastRow <span class="kw">As</span> <span class="type">Long</span>
+    lastRow = ws.Cells(ws.Rows.Count, <span class="num">1</span>).End(xlUp).Row
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>
+    <span class="kw">For</span> i = <span class="num">1</span> <span class="kw">To</span> lastRow
+        cboProduct.AddItem ws.Cells(i, <span class="num">1</span>).Value
+    <span class="kw">Next</span> i
+    
+    <span class="com">' Set default selection</span>
+    cboStatus.ListIndex = <span class="num">0</span>   <span class="com">' First item</span>
+<span class="kw">End Sub</span>
+
+<span class="com">' Read selected value</span>
+<span class="kw">Dim</span> selectedStatus <span class="kw">As</span> <span class="type">String</span>
+selectedStatus = cboStatus.Value   <span class="com">' Gets the text</span>
+
+<span class="com">' ListBox — multi-select example</span>
+lstModels.MultiSelect = fmMultiSelectMulti
+<span class="kw">Dim</span> k <span class="kw">As</span> <span class="type">Long</span>
+<span class="kw">For</span> k = <span class="num">0</span> <span class="kw">To</span> lstModels.ListCount - <span class="num">1</span>
+    <span class="kw">If</span> lstModels.Selected(k) <span class="kw">Then</span>
+        Debug.Print lstModels.List(k)   <span class="com">' Print each selected item</span>
+    <span class="kw">End If</span>
+<span class="kw">Next</span> k</div>
+</div>
+
+<!-- S8 Change Events -->
+<div class="slide">
+  <h2>Key Form Events</h2>
+  <div class="code-block"><span class="com">' TextBox Change — real-time validation</span>
+<span class="kw">Private Sub</span> <span class="func">txtQty_Change</span>()
+    <span class="kw">If</span> <span class="func">IsNumeric</span>(txtQty.Text) <span class="kw">Then</span>
+        lblError.Caption = <span class="str">""</span>
+        lblError.ForeColor = <span class="num">RGB(0,128,0)</span>
+    <span class="kw">Else</span>
+        lblError.Caption = <span class="str">"⚠ Must be a number"</span>
+        lblError.ForeColor = <span class="num">RGB(255,0,0)</span>
+    <span class="kw">End If</span>
+<span class="kw">End Sub</span>
+
+<span class="com">' ComboBox Change — update related fields</span>
+<span class="kw">Private Sub</span> <span class="func">cboProduct_Change</span>()
+    <span class="com">' Lookup price when product is selected</span>
+    <span class="kw">Dim</span> price <span class="kw">As</span> <span class="type">Variant</span>
+    <span class="kw">On Error</span> <span class="kw">Resume Next</span>
+    price = Application.WorksheetFunction.VLookup( _
+        cboProduct.Value, Sheets(<span class="str">"Prices"</span>).Range(<span class="str">"A:B"</span>), <span class="num">2</span>, <span class="kw">False</span>)
+    <span class="kw">On Error GoTo</span> <span class="num">0</span>
+    txtPrice.Text = <span class="kw">IIf</span>(<span class="func">IsEmpty</span>(price), <span class="str">"N/A"</span>, price)
+<span class="kw">End Sub</span>
+
+<span class="com">' OptionButton — respond to radio selection</span>
+<span class="kw">Private Sub</span> <span class="func">optFull_Click</span>()
+    txtHours.Enabled = <span class="kw">False</span>   <span class="com">' Disable hours for full-time</span>
+<span class="kw">End Sub</span>
+<span class="kw">Private Sub</span> <span class="func">optPart_Click</span>()
+    txtHours.Enabled = <span class="kw">True</span>    <span class="com">' Enable for part-time</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S9 Live Demo Mockup -->
+<div class="slide">
+  <h2>🎬 Demo — Complete Data Entry Form</h2>
+  <div class="two-col">
+    <div>
+      <p style="font-size:.9em;color:var(--muted);">A complete example: Sales Order Form with validation</p>
+      <div class="code-block" style="font-size:.8em;"><span class="kw">Private Sub</span> <span class="func">UserForm_Initialize</span>()
+    cboProduct.AddItem <span class="str">"MT-09"</span>
+    cboProduct.AddItem <span class="str">"YZF-R3"</span>
+    cboProduct.AddItem <span class="str">"NMAX"</span>
+    txtDate.Text = Format(<span class="func">Date</span>,<span class="str">"yyyy/mm/dd"</span>)
+    txtQty.Text = <span class="str">"1"</span>
+<span class="kw">End Sub</span>
+
+<span class="kw">Private Sub</span> <span class="func">btnOK_Click</span>()
+    <span class="kw">If</span> txtCustomer.Text = <span class="str">""</span> <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Customer required!"</span>, vbExclamation
+        txtCustomer.SetFocus
+        <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+    <span class="kw">If</span> Not <span class="func">IsNumeric</span>(txtQty.Text) <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"Qty must be a number!"</span>, vbExclamation
+        <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+    <span class="com">' Write to sheet</span>
+    WriteOrder
+    <span class="kw">Unload Me</span>
+<span class="kw">End Sub</span></div>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:flex-start;padding-top:20px;">
+      <div class="form-mockup" style="width:320px;">
+        <div class="form-titlebar">
+          <span>📦 Sales Order Entry</span>
+          <button>✕</button>
+        </div>
+        <div class="form-body">
+          <div class="fm-row"><label class="fm-label">Customer Name: *</label><input class="fm-input" placeholder="Enter customer name..."></div>
+          <div class="fm-row"><label class="fm-label">Product:</label><select class="fm-select"><option>MT-09</option><option>YZF-R3</option><option>NMAX</option></select></div>
+          <div class="fm-row"><label class="fm-label">Quantity:</label><input class="fm-input" value="1" style="width:80px;"></div>
+          <div class="fm-row"><label class="fm-label">Order Date:</label><input class="fm-input" value="2026/05/04" readonly></div>
+          <div style="margin-top:14px;text-align:right;"><button class="fm-btn fm-btn-ok">✓ Save Order</button><button class="fm-btn">✕ Cancel</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S10 Quiz -->
+<div class="slide">
+  <h2>🎯 Module 9 Quiz</h2>
+  <div class="quiz-q">Q1: Which event runs automatically when a UserForm first opens?</div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'UserForm_Initialize runs automatically before the form is shown, making it ideal for setup code.')">UserForm_Open</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'Correct! UserForm_Initialize runs when the form is first loaded, before it is shown.')">UserForm_Initialize</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'UserForm_Initialize runs automatically before the form is shown, making it ideal for setup code.')">UserForm_Load</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'UserForm_Initialize runs automatically before the form is shown, making it ideal for setup code.')">UserForm_Start</div>
+  </div>
+  <div id="q1fb"></div><br>
+  <div class="quiz-q">Q2: How do you close a UserForm and free its memory?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Unload Me removes the form from memory. Hide just hides it but keeps it in memory.')">UserForm1.Hide</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Unload Me removes the form from memory. Hide just hides it but keeps it in memory.')">UserForm1.Close</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'Correct! Unload Me removes the form object from memory completely.')">Unload Me</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'Unload Me removes the form from memory. Hide just hides it but keeps it in memory.')">Me.Visible = False</div>
+  </div>
+  <div id="q2fb"></div>
+</div>
+
+<!-- S11 Summary -->
+<div class="slide title-slide">
+  <div class="big-icon">🎉</div>
+  <h1>Module 9 <span>Complete!</span></h1>
+  <div class="card" style="text-align:left;max-width:520px;margin-top:20px;">
+    <h3>📋 Key Takeaways</h3>
+    <ul style="list-style:none;">
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>UserForms = professional custom dialogs designed visually in VBE</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>UserForm_Initialize</b> = setup event (fill dropdowns, defaults)</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Always <b>validate</b> before writing data to the sheet</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span><b>Show</b> opens, <b>Hide</b> keeps in memory, <b>Unload Me</b> closes &amp; frees</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Use <b>Change</b> and <b>Click</b> events for real-time interaction</li>
+      <li style="padding:6px 0 6px 24px;position:relative;"><span style="position:absolute;left:0;color:var(--accent);">▶</span>Name controls with prefix: txt, cbo, lst, chk, opt, btn, lbl</li>
+    </ul>
+  </div>
+  <p style="margin-top:16px;color:var(--muted);">Next: <b>Module 10 – Practical Applications</b></p>
+</div>
+
+</div>
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div>
+<div id="np">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--accent);">📝 Notes – M09</b><button class="btn btn-g" style="padding:2px 8px;" onclick="toggleNotes()">✕</button></div>
+  <textarea id="na" placeholder="Notes..."></textarea>
+  <button class="btn btn-a" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;const total=slides.length;
+document.getElementById('tn').textContent=total;
+function show(n){slides[cur].classList.remove('active');cur=Math.max(0,Math.min(n,total-1));slides[cur].classList.add('active');document.getElementById('cn').textContent=cur+1;document.getElementById('pf').style.width=((cur+1)/total*100)+'%';document.getElementById('prevBtn').disabled=cur===0;const nb=document.getElementById('nextBtn');if(cur===total-1){nb.textContent='✓ Complete';nb.classList.add('done');}else{nb.textContent='Next ▶';nb.classList.remove('done');}}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+function checkQ(id,el,ok,msg){document.querySelectorAll('#'+id+' .quiz-opt').forEach(o=>o.style.pointerEvents='none');el.classList.add(ok?'correct':'wrong');const fb=document.getElementById(id.replace('opts','fb'));fb.innerHTML=`<div class="feedback ${ok?'ok':'bad'}">${ok?'✅':'❌'} ${msg}</div>`;}
+function toggleNotes(){document.getElementById('np').classList.toggle('show');}
+function saveNotes(){localStorage.setItem('vba_notes_09',document.getElementById('na').value);alert('Saved!');}
+document.getElementById('na').value=localStorage.getItem('vba_notes_09')||'';
+</script>
+</body>
+</html>

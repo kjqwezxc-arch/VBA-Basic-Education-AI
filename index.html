@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>VBA Macro Basics — Learning Portal</title>
+<style>
+:root{
+  --accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;
+  --muted:#64748b;--green:#2e7d32;--ai:#6d28d9;--border:#dde3ec;
+  --shadow:0 2px 8px rgba(0,0,0,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:16px;}
+/* NAV */
+.nav{background:#fff;border-bottom:2px solid var(--border);padding:0 32px;display:flex;align-items:center;gap:16px;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.nav-logo{font-size:1.3em;font-weight:800;color:var(--accent);}
+.nav-links{display:flex;gap:4px;margin-left:24px;}
+.nav-link{background:none;border:none;color:var(--muted);padding:7px 16px;border-radius:6px;cursor:pointer;font-size:.97em;font-weight:500;transition:all .15s;}
+.nav-link:hover{background:#f0f4f8;color:var(--text);}
+.nav-link.active{background:var(--accent);color:#fff;}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.progress-mini{display:flex;align-items:center;gap:8px;font-size:.92em;color:var(--muted);}
+.pbar-wrap{width:120px;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;}
+.pbar-fill{height:100%;background:var(--accent);border-radius:4px;transition:width .4s;}
+/* SECTIONS */
+.section{display:none;padding:36px 32px;max-width:1240px;margin:0 auto;}
+.section.active{display:block;}
+/* HOME */
+.hero{text-align:center;padding:48px 0 36px;}
+.hero h1{font-size:3em;margin-bottom:14px;font-weight:800;}.hero h1 span{color:var(--accent);}
+.hero p{color:var(--muted);font-size:1.15em;max-width:580px;margin:0 auto;line-height:1.7;}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:760px;margin:32px auto 0;}
+.stat-box{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;text-align:center;box-shadow:var(--shadow);}
+.stat-num{font-size:2.4em;font-weight:800;color:var(--accent);}
+.stat-lbl{color:var(--muted);font-size:.9em;margin-top:4px;font-weight:500;}
+.home-progress{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:760px;margin:28px auto 0;box-shadow:var(--shadow);}
+.home-progress h3{margin-bottom:12px;color:var(--text);font-size:1.15em;}
+.big-pbar{height:16px;background:#e2e8f0;border-radius:8px;overflow:hidden;margin:10px 0;}
+.big-pfill{height:100%;background:linear-gradient(90deg,var(--accent),#ff6d00);border-radius:8px;transition:width .5s;}
+/* MODULES GRID */
+.section-title{font-size:1.45em;font-weight:700;margin-bottom:22px;border-bottom:2px solid var(--border);padding-bottom:12px;color:var(--text);}
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;}
+.mod-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:transform .15s,box-shadow .15s;position:relative;box-shadow:var(--shadow);}
+.mod-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12);}
+.mod-card.done{border-color:var(--green);border-width:2px;}
+.mod-top{height:8px;}
+.mod-body{padding:20px 22px 16px;}
+.mod-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;}
+.mod-icon{font-size:2.4em;line-height:1;}
+.mod-meta{flex:1;}
+.mod-num{color:var(--muted);font-size:.82em;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+.mod-title{font-size:1.1em;font-weight:700;line-height:1.35;margin-top:3px;color:var(--text);}
+.mod-sub{color:var(--muted);font-size:.9em;margin:8px 0 12px;line-height:1.55;}
+.mod-topics{margin-bottom:14px;}
+.mod-topics-title{font-size:.8em;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.topic-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.topic-chip{background:#f1f5f9;color:#374151;font-size:.78em;padding:3px 10px;border-radius:12px;border:1px solid var(--border);}
+.mod-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+.tag{padding:3px 12px;border-radius:20px;font-size:.8em;font-weight:600;}
+.tag-beginner{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;}
+.tag-intermediate{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;}
+.tag-advanced{background:#f3e8ff;color:#6b21a8;border:1px solid #e9d5ff;}
+.tag-time{background:#f1f5f9;color:var(--muted);border:1px solid var(--border);}
+.done-badge{position:absolute;top:12px;right:12px;background:var(--green);color:#fff;font-size:.75em;font-weight:700;padding:3px 12px;border-radius:20px;}
+.mod-actions{display:flex;gap:8px;}
+.btn{border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:.92em;font-weight:600;transition:all .15s;}
+.btn:hover{filter:brightness(.92);}
+.btn-accent{background:var(--accent);color:#fff;flex:1;}
+.btn-ghost{background:#f1f5f9;color:var(--text);border:1px solid var(--border);}
+/* PROGRESS */
+.prog-header{display:flex;align-items:center;gap:20px;margin-bottom:28px;}
+.prog-big{font-size:4em;font-weight:800;color:var(--accent);}
+.prog-list{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.prog-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);}
+.prog-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8em;flex-shrink:0;}
+.prog-check.done{background:var(--green);border-color:var(--green);color:#fff;font-weight:700;}
+.prog-info{flex:1;}
+.prog-name{font-size:.97em;font-weight:600;color:var(--text);}
+.prog-time{font-size:.82em;color:var(--muted);margin-top:2px;}
+.btn-danger{background:#dc2626;color:#fff;margin-top:20px;padding:10px 22px;}
+/* NOTES */
+.notes-form{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px;box-shadow:var(--shadow);}
+select,textarea{background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-family:inherit;font-size:.97em;width:100%;}
+select{margin-bottom:16px;}
+textarea{height:200px;resize:vertical;margin-bottom:12px;}
+select:focus,textarea:focus{outline:2px solid var(--accent);border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-logo">📗 VBA Basics</span>
+  <div class="nav-links">
+    <button class="nav-link active" onclick="showSection('home',this)">🏠 Home</button>
+    <button class="nav-link" onclick="showSection('modules',this)">📚 Modules</button>
+    <button class="nav-link" onclick="showSection('progress',this)">📊 Progress</button>
+    <button class="nav-link" onclick="showSection('notes',this)">📝 Notes</button>
+  </div>
+  <div class="nav-right">
+    <div class="progress-mini">
+      <span id="navCount">0/13</span>
+      <div class="pbar-wrap"><div class="pbar-fill" id="navBar" style="width:0%"></div></div>
+    </div>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="section active" id="sec-home">
+  <div class="hero">
+    <h1>VBA Macro <span>Basics</span></h1>
+    <p>A complete self-paced course — from writing your first macro to using AI for Excel automation</p>
+  </div>
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num">13</div><div class="stat-lbl">Modules</div></div>
+    <div class="stat-box"><div class="stat-num">6.5h</div><div class="stat-lbl">Content</div></div>
+    <div class="stat-box"><div class="stat-num">60+</div><div class="stat-lbl">Examples</div></div>
+    <div class="stat-box"><div class="stat-num">2</div><div class="stat-lbl">AI Modules</div></div>
+  </div>
+  <div class="home-progress">
+    <h3>Your Progress</h3>
+    <div id="homeProgressText" style="color:var(--muted);font-size:.9em;">0 of 13 modules completed</div>
+    <div class="big-pbar"><div class="big-pfill" id="homePbar" style="width:0%"></div></div>
+    <div style="text-align:center;margin-top:14px;">
+      <button class="btn btn-accent" style="padding:10px 32px;font-size:1em;" onclick="showSection('modules',document.querySelector('.nav-link:nth-child(2)'))">▶ Start Learning</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODULES -->
+<div class="section" id="sec-modules">
+  <div class="section-title">📚 All Modules</div>
+  <div class="modules-grid" id="modGrid"></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="section" id="sec-progress">
+  <div class="section-title">📊 Your Progress</div>
+  <div class="prog-header">
+    <div class="prog-big" id="progNum">0</div>
+    <div>
+      <div style="font-size:1.1em;font-weight:600;">modules completed</div>
+      <div style="color:var(--muted);font-size:.9em;">out of 13 total</div>
+      <div class="big-pbar" style="width:300px;margin-top:8px;"><div class="big-pfill" id="progBar" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="prog-list" id="progList"></div>
+  <button class="btn btn-danger" onclick="resetProgress()">🔄 Reset All Progress</button>
+</div>
+
+<!-- NOTES -->
+<div class="section" id="sec-notes">
+  <div class="section-title">📝 Module Notes</div>
+  <div class="notes-form">
+    <select id="notesSel" onchange="loadNote()"></select>
+    <textarea id="notesText" placeholder="Type your notes here..."></textarea>
+    <button class="btn btn-accent" onclick="saveNote()">💾 Save Notes</button>
+  </div>
+</div>
+
+<script>
+const MODULES = [
+  {id:'01',icon:'📗',title:'Introduction to VBA',sub:'Understand what VBA is, why it matters, and see real office automation examples that save hours of manual work.',file:'modules/01_intro.html',time:'20 min',diff:'beginner',color:'#4caf50',topics:['What is VBA?','Macro basics','Recording macros','Real use cases','VBA vs formulas']},
+  {id:'02',icon:'⚙️',title:'Getting Started with VBE',sub:'Enable the Developer tab, navigate the VBE editor, and write your first working macro from scratch.',file:'modules/02_getting_started.html',time:'30 min',diff:'beginner',color:'#66bb6a',topics:['Developer tab','VBE layout','Project Explorer','First macro','Run & save']},
+  {id:'03',icon:'📦',title:'Variables & Data Types',sub:'Learn how to store and manage data using variables, understand data types, scope, and Option Explicit.',file:'modules/03_variables.html',time:'35 min',diff:'beginner',color:'#29b6f6',topics:['Dim statement','Data types','String/Integer/Long','Scope','Constants','Arrays']},
+  {id:'04',icon:'🔀',title:'Control Flow',sub:'Control program logic with If/Then/Else, Select Case, For-Next loops, Do-While loops and nested structures.',file:'modules/04_control_flow.html',time:'40 min',diff:'beginner',color:'#42a5f5',topics:['If / ElseIf / Else','Select Case','For Next','For Each','Do While / Until','Nested loops']},
+  {id:'05',icon:'🔧',title:'Procedures & Functions',sub:'Organize code into reusable Sub procedures and Function procedures. Learn parameters, ByVal/ByRef, and how to create UDFs.',file:'modules/05_procedures.html',time:'35 min',diff:'intermediate',color:'#ff9800',topics:['Sub vs Function','Parameters','ByVal vs ByRef','Return values','User-defined functions','Calling procedures']},
+  {id:'06',icon:'📊',title:'Excel Object Model',sub:'Master the Workbook, Worksheet, Range, and Cells objects. Understand the object hierarchy and Application properties.',file:'modules/06_excel_objects.html',time:'45 min',diff:'intermediate',color:'#ffa726',topics:['Object hierarchy','Workbooks','Worksheets','Range & Cells','Cell properties','Application object']},
+  {id:'07',icon:'🔩',title:'Built-in Functions',sub:'Leverage VBA\'s library of string, math, date, and conversion functions. Use MsgBox and InputBox for user interaction.',file:'modules/07_functions.html',time:'30 min',diff:'intermediate',color:'#ffb74d',topics:['String functions','Math functions','Date functions','MsgBox','InputBox','WorksheetFunction']},
+  {id:'08',icon:'🐛',title:'Error Handling & Debugging',sub:'Write robust code using On Error GoTo, Err object, and Resume. Master the VBE debugger with breakpoints and step-through.',file:'modules/08_error_handling.html',time:'30 min',diff:'intermediate',color:'#ef5350',topics:['Error types','On Error GoTo','Err object','Resume','Breakpoints','F8 step-through','Immediate Window']},
+  {id:'09',icon:'🖥️',title:'UserForms & UI Design',sub:'Build professional data entry forms with TextBoxes, ComboBoxes, and buttons. Handle events and validate user input.',file:'modules/09_userforms.html',time:'40 min',diff:'intermediate',color:'#ec407a',topics:['Form design','Controls','Initialize event','Validation','Write to sheet','ComboBox/ListBox','Show & Hide']},
+  {id:'10',icon:'💼',title:'Practical Applications',sub:'Apply VBA to real workplace tasks: data cleanup, automated reports, PDF export, Outlook email, and performance optimization.',file:'modules/10_practical.html',time:'45 min',diff:'intermediate',color:'#ab47bc',topics:['Data cleanup','Report generator','PDF export','Array performance','Worksheet events','Email via Outlook']},
+  {id:'11',icon:'🤖',title:'AI for VBA — Introduction',sub:'Learn to use ChatGPT and GitHub Copilot to write, explain, and debug VBA code. Master the 4-part prompt formula.',file:'modules/11_ai_intro.html',time:'35 min',diff:'advanced',color:'#7c3aed',topics:['AI tools overview','Prompt formula','Code generation','Code explanation','Debugging with AI','Workflow tips']},
+  {id:'12',icon:'🧠',title:'AI for VBA — Advanced',sub:'Advanced prompt engineering, role injection, iterative code building, AI code review, and building complete applications.',file:'modules/12_ai_advanced.html',time:'40 min',diff:'advanced',color:'#5e35b1',topics:['Prompt quality','Role injection','Iterative build','AI code review','Building full apps','AI limitations']},
+  {id:'13',icon:'⚙️',title:'UserForm Data Automation',sub:'Build a real-world Parts Inventory System: data entry form, cross-workbook sync, scatter update, import/export, and auto-generated summary reports.',file:'modules/13_userform_automation.html',time:'55 min',diff:'advanced',color:'#e67e00',topics:['Auto Part ID','Cross-workbook sync','Scatter update','Import with browse','Summary + Dictionary','Archive workflow','Backward delete loop']},
+];
+
+const KEY = 'vba_portal_progress';
+
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }
+  catch(e){ return {}; }
+}
+function saveProgress(p){ localStorage.setItem(KEY, JSON.stringify(p)); }
+
+function getCompleted(){
+  const p = loadProgress();
+  return MODULES.map(m=>p['done_'+m.id]===true);
+}
+
+function countDone(arr){ return arr.filter(Boolean).length; }
+
+function updateNav(){
+  const done = countDone(getCompleted());
+  document.getElementById('navCount').textContent = done+'/13';
+  document.getElementById('navBar').style.width = (done/13*100)+'%';
+}
+
+function updateHome(){
+  const done = countDone(getCompleted());
+  document.getElementById('homeProgressText').textContent = done+' of 13 modules completed';
+  document.getElementById('homePbar').style.width = (done/13*100)+'%';
+}
+
+function buildModuleGrid(){
+  const completed = getCompleted();
+  const grid = document.getElementById('modGrid');
+  grid.innerHTML = '';
+  MODULES.forEach((m,i)=>{
+    const done = completed[i];
+    const diffClass = 'tag-'+m.diff;
+    const diffLabel = m.diff.charAt(0).toUpperCase()+m.diff.slice(1);
+    const card = document.createElement('div');
+    card.className = 'mod-card'+(done?' done':'');
+    card.innerHTML = `
+      <div class="mod-top" style="background:${m.color}"></div>
+      ${done?'<div class="done-badge">✓ Done</div>':''}
+      <div class="mod-body">
+        <div class="mod-header">
+          <div class="mod-icon">${m.icon}</div>
+          <div class="mod-meta">
+            <div class="mod-num">Module ${m.id}</div>
+            <div class="mod-title">${m.title}</div>
+          </div>
+        </div>
+        <div class="mod-sub">${m.sub}</div>
+        <div class="mod-topics">
+          <div class="mod-topics-title">Topics covered</div>
+          <div class="topic-chips">${m.topics.map(t=>`<span class="topic-chip">${t}</span>`).join('')}</div>
+        </div>
+        <div class="mod-tags">
+          <span class="tag tag-${m.diff}">${m.diff.charAt(0).toUpperCase()+m.diff.slice(1)}</span>
+          <span class="tag tag-time">⏱ ${m.time}</span>
+        </div>
+        <div class="mod-actions">
+          <button class="btn btn-accent" onclick="openModule('${m.file}','${m.id}')">▶ Open Module</button>
+          <button class="btn btn-ghost" id="doneBtn_${m.id}" onclick="toggleDone('${m.id}',this)">${done?'↩ Undo':'✓ Done'}</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function buildProgressList(){
+  const completed = getCompleted();
+  const done = countDone(completed);
+  document.getElementById('progNum').textContent = done;
+  document.getElementById('progBar').style.width = (done/13*100)+'%';
+  const list = document.getElementById('progList');
+  list.innerHTML = '';
+  MODULES.forEach((m,i)=>{
+    const isDone = completed[i];
+    const item = document.createElement('div');
+    item.className = 'prog-item';
+    item.innerHTML = `
+      <div class="prog-check ${isDone?'done':''}">${isDone?'✓':''}</div>
+      <div class="prog-info">
+        <div class="prog-name">${m.icon} ${m.title}</div>
+        <div class="prog-time">${m.time} · ${m.diff}</div>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+
+function buildNotesSelector(){
+  const sel = document.getElementById('notesSel');
+  sel.innerHTML = '';
+  MODULES.forEach(m=>{
+    const opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = 'Module '+m.id+' — '+m.title;
+    sel.appendChild(opt);
+  });
+}
+
+function loadNote(){
+  const id = document.getElementById('notesSel').value;
+  document.getElementById('notesText').value = localStorage.getItem('vba_notes_'+id)||'';
+}
+function saveNote(){
+  const id = document.getElementById('notesSel').value;
+  localStorage.setItem('vba_notes_'+id, document.getElementById('notesText').value);
+  const btn = document.querySelector('.notes-form .btn-accent');
+  btn.textContent = '✅ Saved!';
+  setTimeout(()=>btn.textContent='💾 Save Notes', 1500);
+}
+
+function openModule(file, id){
+  const p = loadProgress();
+  p['opened_'+id] = new Date().toISOString();
+  saveProgress(p);
+  window.open(file, '_blank');
+}
+
+function toggleDone(id, btn){
+  const p = loadProgress();
+  const key = 'done_'+id;
+  p[key] = !p[key];
+  saveProgress(p);
+  refreshAll();
+}
+
+function resetProgress(){
+  if(!confirm('Reset all progress? This cannot be undone.')) return;
+  const p = {};
+  saveProgress(p);
+  refreshAll();
+}
+
+function refreshAll(){
+  updateNav();
+  updateHome();
+  buildModuleGrid();
+  buildProgressList();
+}
+
+function showSection(id, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(id==='modules') buildModuleGrid();
+  if(id==='progress') buildProgressList();
+  if(id==='notes'){ buildNotesSelector(); loadNote(); }
+  if(id==='home') updateHome();
+}
+
+// Init
+refreshAll();
+buildNotesSelector();
+// Deep-link via hash (e.g. #modules from module Complete button)
+(function(){
+  const hash = location.hash.replace('#','');
+  if(hash==='modules'||hash==='progress'||hash==='notes'){
+    const btn=document.querySelector(`.nav-link[onclick*="'${hash}'"]`);
+    showSection(hash, btn||null);
+  }
+})();
+</script>
+</body>
+</html>

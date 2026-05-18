@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Module 05 – Procedures &amp; Functions</title>
+<style>
+:root{--accent:#e67e00;--bg:#f0f4f8;--card:#ffffff;--text:#1a2233;--muted:#64748b;--green:#2e7d32;--red:#c62828;--code-bg:#1e2433;--border:#dde3ec;--dark:#f0f4f8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:16px;}
+.app{display:grid;grid-template-rows:60px 4px 1fr 52px;height:100vh;}
+.hdr{background:#fff;display:flex;align-items:center;padding:0 24px;gap:12px;border-bottom:2px solid var(--border);box-shadow:0 2px 6px rgba(0,0,0,.06);}
+.badge{background:var(--accent);color:#000;padding:3px 14px;border-radius:20px;font-weight:700;font-size:.82em;}
+.htitle{font-size:1.1em;font-weight:600;}.hright{margin-left:auto;color:var(--muted);font-size:.9em;}
+.pbar{background:#e2e8f0;}.pfill{height:6px;background:var(--accent);transition:width .35s;}
+.scontainer{position:relative;overflow:hidden;}
+.slide{position:absolute;inset:0;padding:36px 60px;display:none;overflow-y:auto;flex-direction:column;justify-content:center;}
+.slide.active{display:flex;animation:fadeUp .3s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.title-slide{text-align:center;align-items:center;}
+.big-icon{font-size:4.5em;margin-bottom:12px;}
+h1{font-size:2.4em;margin-bottom:10px;}h1 span{color:var(--accent);}
+h2{font-size:1.65em;margin-bottom:10px;color:var(--accent);}h3{font-size:1.15em;color:var(--accent);margin-bottom:6px;}
+p{line-height:1.75;margin-bottom:10px;}
+.subtitle{color:var(--muted);font-size:1.1em;}
+.bullets{list-style:none;margin:10px 0;}
+.bullets li{padding:7px 0 7px 28px;position:relative;line-height:1.6;}
+.bullets li::before{content:'▶';color:var(--accent);position:absolute;left:0;font-size:.7em;top:10px;}
+.bullets li b{color:var(--accent);}
+.callout{border-left:5px solid var(--accent);background:#fff7ed;padding:12px 16px;border-radius:0 10px 10px 0;margin:10px 0;}
+.callout.info{border-color:#3b82f6;background:#eff6ff;}
+.callout.success{border-color:var(--green);background:#f0fdf4;}
+.callout.tip{border-color:#ce93d8;background:rgba(206,147,216,.1);}
+.callout strong{display:block;margin-bottom:3px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:10px 0;}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:14px;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+.code-block{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:16px 18px;font-family:'Cascadia Code','Consolas',monospace;font-size:.91em;white-space:pre;overflow-x:auto;margin:12px 0;line-height:1.65;color:#d4d4d4;}
+.kw{color:#569cd6;}.str{color:#ce9178;}.com{color:#6a9955;}.num{color:#b5cea8;}.func{color:#dcdcaa;}.type{color:#4ec9b0;}
+.quiz-q{font-size:1.1em;font-weight:600;margin-bottom:10px;}
+.quiz-opt{background:var(--card);border:2px solid var(--border);border-radius:8px;padding:9px 14px;margin:5px 0;cursor:pointer;transition:all .2s;}
+.quiz-opt:hover{border-color:var(--accent);}.quiz-opt.correct{border-color:var(--green);background:rgba(76,175,80,.15);}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(244,67,54,.15);}
+.feedback{padding:9px 14px;border-radius:8px;margin-top:8px;font-size:.9em;}
+.feedback.ok{background:rgba(76,175,80,.12);border-left:3px solid var(--green);}
+.feedback.bad{background:rgba(244,67,54,.12);border-left:3px solid var(--red);}
+.footer{background:#fff;border-top:2px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;box-shadow:0 -2px 6px rgba(0,0,0,.04);}
+.nav-btn{background:#f1f5f9;color:var(--text);border:1.5px solid var(--border);padding:10px 24px;border-radius:8px;cursor:pointer;font-size:.97em;font-weight:600;}
+.nav-btn:hover{background:#e2e8f0;color:var(--text);}.nav-btn:disabled{opacity:.3;cursor:default;}.nav-btn.done{background:var(--green);color:#000;}
+.hint{margin:0 auto;color:var(--muted);font-size:.82em;}
+.btn{padding:7px 16px;border:none;border-radius:6px;cursor:pointer;font-size:.88em;font-weight:600;}
+.btn-a{background:var(--accent);color:#000;}.btn-g{background:#e2e8f0;color:var(--text);}
+.demo-box{background:#f1f5f9;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin:12px 0;}
+.demo-tb{background:#e2e8f0;padding:7px 14px;font-size:.84em;color:var(--muted);border-bottom:1px solid var(--border);}
+.demo-area{padding:12px 16px;font-family:'Cascadia Code',monospace;font-size:.88em;min-height:80px;line-height:1.7;color:var(--text);}
+.demo-out{padding:7px 16px;border-top:1px solid var(--border);color:#0d7a5f;font-size:.84em;min-height:28px;background:#e8f5f0;}
+.demo-ctrl{padding:7px 14px;background:#f8fafc;border-top:1px solid var(--border);display:flex;gap:8px;}
+.demo-box .kw{color:#0070c1;}.demo-box .str{color:#a31515;}.demo-box .com{color:#008000;}.demo-box .num{color:#098658;}.demo-box .func{color:#795e26;}.demo-box .type{color:#267f99;}
+#np{display:none;position:fixed;bottom:60px;right:16px;width:300px;background:#fff;border:2px solid var(--border);border-radius:12px;padding:14px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+#np.show{display:block;}
+#np textarea{width:100%;height:110px;background:#f8fafc;color:var(--text);border:1.5px solid var(--border);border-radius:6px;padding:8px;font-family:'Segoe UI',sans-serif;resize:none;font-size:.85em;}
+/* ── Yamaha Template ── */
+.scontainer{background:#fff;}
+.scontainer::after{content:'';position:absolute;bottom:0;left:0;width:420px;height:182px;background-image:url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23c8d8e8' stroke='white' stroke-width='2'/></svg>"),url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='66' height='50'><polygon points='33,1 65,25 33,49 1,25' fill='%23b8c8d8' stroke='white' stroke-width='2'/></svg>");background-size:66px 50px,66px 50px;background-position:0 0,33px 25px;background-repeat:repeat,repeat;clip-path:polygon(0 0,100% 100%,0 100%);pointer-events:none;z-index:0;}
+.slide{z-index:1;}
+.ym-brand{display:flex;align-items:center;gap:8px;margin-left:14px;padding-left:14px;border-left:1.5px solid var(--border);flex-shrink:0;}
+.ym-name{font-size:.95em;font-weight:900;letter-spacing:1px;color:#1a3a6b;line-height:1.1;}
+.ym-tagline{font-size:.52em;font-weight:700;letter-spacing:1.5px;color:#4a6fa5;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="hdr">
+  <div class="badge">Module 05</div>
+  <span class="htitle">⚙️ Procedures &amp; Functions</span>
+  <span class="hright">Slide <span id="cn">1</span> / <span id="tn">10</span> &nbsp;|&nbsp; ⏱ 35 min &nbsp;|&nbsp; 🟡 Intermediate
+    <button class="btn btn-g" style="padding:4px 10px;font-size:.78em;margin-left:12px;" onclick="toggleNotes()">📝 Notes</button>
+  </span>
+  <div class="ym-brand"><svg width="32" height="36" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg"><path d="M8,82 L8,40 Q8,6 40,6 Q72,6 72,40 L72,82" fill="none" stroke="#1a3a6b" stroke-width="9" stroke-linecap="round"/><path d="M20,82 L40,48 L60,82" fill="none" stroke="#1a3a6b" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="26" r="6" fill="#1a3a6b"/><circle cx="22" cy="44" r="4.5" fill="#1a3a6b"/><circle cx="58" cy="44" r="4.5" fill="#1a3a6b"/><line x1="40" y1="26" x2="22" y2="44" stroke="#1a3a6b" stroke-width="2.5"/><line x1="40" y1="26" x2="58" y2="44" stroke="#1a3a6b" stroke-width="2.5"/></svg><div><div class="ym-name">MirAI</div><div class="ym-tagline">Technology of the Future</div></div></div>
+</div>
+<div class="pbar"><div class="pfill" id="pf"></div></div>
+<div class="scontainer">
+
+<div class="slide title-slide active">
+  <div class="big-icon">⚙️</div>
+  <h1>Procedures &amp; <span>Functions</span></h1>
+  <p class="subtitle">Organize your code into reusable building blocks — Sub, Function, parameters, scope</p>
+</div>
+
+<!-- S2 Sub vs Function -->
+<div class="slide">
+  <h2>Sub vs. Function — What's the Difference?</h2>
+  <div class="two-col">
+    <div class="card" style="border-color:#569cd6;">
+      <h3>🔧 Sub (Subroutine)</h3>
+      <ul class="bullets">
+        <li>Performs <b>actions</b> (no return value)</li>
+        <li>Called with <code>Call MySub</code> or just <code>MySub</code></li>
+        <li>Can be assigned to buttons, shortcuts</li>
+        <li>Good for: formatting, writing data, showing dialogs</li>
+      </ul>
+      <div class="code-block" style="margin:8px 0;"><span class="kw">Sub</span> <span class="func">FormatHeader</span>()
+    Range(<span class="str">"A1"</span>).Font.Bold = <span class="kw">True</span>
+    Range(<span class="str">"A1"</span>).Font.Size = <span class="num">14</span>
+<span class="kw">End Sub</span></div>
+    </div>
+    <div class="card" style="border-color:#dcdcaa;">
+      <h3>📊 Function</h3>
+      <ul class="bullets">
+        <li>Calculates and <b>returns a value</b></li>
+        <li>Can be used in Excel cells like a formula!</li>
+        <li>Called: <code>result = MyFunction(args)</code></li>
+        <li>Good for: calculations, data transformations</li>
+      </ul>
+      <div class="code-block" style="margin:8px 0;"><span class="kw">Function</span> <span class="func">AddTax</span>(price <span class="kw">As</span> <span class="type">Double</span>) <span class="kw">As</span> <span class="type">Double</span>
+    AddTax = price * <span class="num">1.10</span>
+<span class="kw">End Function</span></div>
+    </div>
+  </div>
+  <div class="callout info"><strong>📌 Key Rule</strong>If you need a result back → use Function. If you just want to do something → use Sub.</div>
+</div>
+
+<!-- S3 Parameters -->
+<div class="slide">
+  <h2>Parameters — Passing Data to Procedures</h2>
+  <div class="code-block"><span class="com">' Sub with parameters</span>
+<span class="kw">Sub</span> <span class="func">HighlightRange</span>(targetRange <span class="kw">As</span> <span class="type">Range</span>, highlightColor <span class="kw">As</span> <span class="type">Long</span>)
+    targetRange.Interior.Color = highlightColor
+<span class="kw">End Sub</span>
+
+<span class="com">' Calling the sub with arguments:</span>
+<span class="func">HighlightRange</span> Range(<span class="str">"A1:A10"</span>), <span class="num">RGB(255, 255, 0)</span>
+
+<span class="com">' Function with multiple parameters</span>
+<span class="kw">Function</span> <span class="func">CalcBonus</span>(salary <span class="kw">As</span> <span class="type">Double</span>, pctRate <span class="kw">As</span> <span class="type">Double</span>) <span class="kw">As</span> <span class="type">Double</span>
+    CalcBonus = salary * (pctRate / <span class="num">100</span>)
+<span class="kw">End Function</span>
+
+<span class="com">' Calling it:</span>
+<span class="kw">Dim</span> myBonus <span class="kw">As</span> <span class="type">Double</span>
+myBonus = <span class="func">CalcBonus</span>(<span class="num">450000</span>, <span class="num">15</span>)   <span class="com">' → 67500</span>
+<span class="func">MsgBox</span> <span class="str">"Bonus: ¥"</span> & myBonus</div>
+</div>
+
+<!-- S4 ByVal vs ByRef -->
+<div class="slide">
+  <h2>ByVal vs. ByRef — Parameter Passing</h2>
+  <div class="two-col">
+    <div>
+      <p><b style="color:var(--red);">ByRef</b> (default) — passes the actual variable. Changes inside the Sub affect the original!</p>
+      <div class="code-block"><span class="kw">Sub</span> <span class="func">DoubleIt</span>(n <span class="kw">As</span> <span class="type">Long</span>) <span class="com">' ByRef (default)</span>
+    n = n * <span class="num">2</span>
+<span class="kw">End Sub</span>
+
+<span class="kw">Dim</span> x <span class="kw">As</span> <span class="type">Long</span>: x = <span class="num">5</span>
+<span class="func">DoubleIt</span> x
+<span class="func">MsgBox</span> x   <span class="com">' Shows 10! x was changed</span></div>
+    </div>
+    <div>
+      <p><b style="color:var(--green);">ByVal</b> — passes a copy. Changes inside do NOT affect the original.</p>
+      <div class="code-block"><span class="kw">Sub</span> <span class="func">DoubleIt</span>(<span class="kw">ByVal</span> n <span class="kw">As</span> <span class="type">Long</span>) <span class="com">' ByVal</span>
+    n = n * <span class="num">2</span>   <span class="com">' only the copy changes</span>
+<span class="kw">End Sub</span>
+
+<span class="kw">Dim</span> x <span class="kw">As</span> <span class="type">Long</span>: x = <span class="num">5</span>
+<span class="func">DoubleIt</span> x
+<span class="func">MsgBox</span> x   <span class="com">' Still 5! x is unchanged</span></div>
+    </div>
+  </div>
+  <div class="callout tip"><strong>💡 Best Practice</strong>Use <b>ByVal</b> for most parameters to prevent accidental modification of variables. Use <b>ByRef</b> only when you intentionally want the sub to modify the original variable.</div>
+</div>
+
+<!-- S5 Optional Parameters -->
+<div class="slide">
+  <h2>Optional Parameters &amp; Default Values</h2>
+  <div class="code-block"><span class="com">' Optional parameters have defaults</span>
+<span class="kw">Function</span> <span class="func">FormatCurrency</span>(<span class="kw">ByVal</span> amount <span class="kw">As</span> <span class="type">Double</span>, _
+                         <span class="kw">Optional</span> currency <span class="kw">As</span> <span class="type">String</span> = <span class="str">"¥"</span>, _
+                         <span class="kw">Optional</span> decimals <span class="kw">As</span> <span class="type">Integer</span> = <span class="num">0</span>) <span class="kw">As</span> <span class="type">String</span>
+    FormatCurrency = currency & <span class="func">Format</span>(amount, <span class="func">String</span>(decimals, <span class="str">"0"</span>) _
+                                & <span class="kw">IIf</span>(decimals>0,<span class="str">"."</span>&<span class="func">String</span>(decimals,<span class="str">"0"</span>),<span class="str">""</span>))
+<span class="kw">End Function</span>
+
+<span class="com">' All these are valid calls:</span>
+<span class="func">MsgBox</span> <span class="func">FormatCurrency</span>(<span class="num">50000</span>)              <span class="com">' → "¥50000"</span>
+<span class="func">MsgBox</span> <span class="func">FormatCurrency</span>(<span class="num">50000</span>, <span class="str">"$"</span>)          <span class="com">' → "$50000"</span>
+<span class="func">MsgBox</span> <span class="func">FormatCurrency</span>(<span class="num">50000.5</span>, <span class="str">"¥"</span>, <span class="num">2</span>)    <span class="com">' → "¥50000.50"</span>
+
+<span class="com">' Check if optional parameter was passed:</span>
+<span class="kw">Function</span> <span class="func">Greet</span>(<span class="kw">Optional</span> name <span class="kw">As</span> <span class="type">String</span> = <span class="str">""</span>) <span class="kw">As</span> <span class="type">String</span>
+    <span class="kw">If</span> <span class="func">IsMissing</span>(name) <span class="kw">Or</span> name = <span class="str">""</span> <span class="kw">Then</span>
+        Greet = <span class="str">"Hello, World!"</span>
+    <span class="kw">Else</span>
+        Greet = <span class="str">"Hello, "</span> & name & <span class="str">"!"</span>
+    <span class="kw">End If</span>
+<span class="kw">End Function</span></div>
+</div>
+
+<!-- S6 Scope Public Private -->
+<div class="slide">
+  <h2>Procedure Scope — Public vs. Private</h2>
+  <div class="code-block"><span class="com">'═══ MODULE 1 ═══════════════════════════════</span>
+
+<span class="com">' PUBLIC: Callable from anywhere in the workbook</span>
+<span class="kw">Public Sub</span> <span class="func">GenerateReport</span>()
+    <span class="func">FormatData</span>()     <span class="com">' Can call private subs in same module</span>
+    <span class="func">ExportToPDF</span>()
+<span class="kw">End Sub</span>
+
+<span class="com">' PRIVATE: Only callable from this module</span>
+<span class="kw">Private Sub</span> <span class="func">FormatData</span>()
+    <span class="com">' Internal helper — not visible outside module</span>
+<span class="kw">End Sub</span>
+
+<span class="com">'═══ MODULE 2 ═══════════════════════════════</span>
+<span class="kw">Sub</span> <span class="func">TestCalls</span>()
+    <span class="func">GenerateReport</span>()  <span class="com">' ✅ Works (Public)</span>
+    <span class="com">' FormatData()   ← ❌ Error! (Private)</span>
+<span class="kw">End Sub</span></div>
+  <div class="callout"><strong>📌 Scope Best Practices</strong>Make all procedures <b>Private</b> by default. Only make them Public when they need to be called from other modules or from Excel buttons.</div>
+</div>
+
+<!-- S7 UDF in Excel -->
+<div class="slide">
+  <h2>User-Defined Functions (UDFs) in Excel</h2>
+  <p>VBA Functions can be used directly in Excel cells like built-in functions!</p>
+  <div class="code-block"><span class="com">' Add this function to a Module</span>
+<span class="kw">Function</span> <span class="func">TaxIncluded</span>(<span class="kw">ByVal</span> price <span class="kw">As</span> <span class="type">Double</span>) <span class="kw">As</span> <span class="type">Double</span>
+    <span class="com">' Adds 10% tax</span>
+    TaxIncluded = price * <span class="num">1.10</span>
+<span class="kw">End Function</span>
+
+<span class="kw">Function</span> <span class="func">ExtractNumbers</span>(<span class="kw">ByVal</span> text <span class="kw">As</span> <span class="type">String</span>) <span class="kw">As</span> <span class="type">String</span>
+    <span class="kw">Dim</span> i <span class="kw">As</span> <span class="type">Long</span>, result <span class="kw">As</span> <span class="type">String</span>
+    <span class="kw">For</span> i = <span class="num">1</span> <span class="kw">To</span> <span class="func">Len</span>(text)
+        <span class="kw">If</span> <span class="func">Mid</span>(text, i, <span class="num">1</span>) >= <span class="str">"0"</span> <span class="kw">And</span> <span class="func">Mid</span>(text, i, <span class="num">1</span>) <= <span class="str">"9"</span> <span class="kw">Then</span>
+            result = result & <span class="func">Mid</span>(text, i, <span class="num">1</span>)
+        <span class="kw">End If</span>
+    <span class="kw">Next</span> i
+    ExtractNumbers = result
+<span class="kw">End Function</span></div>
+  <div class="callout success"><strong>✅ Using UDFs in Excel</strong>In any cell, type <code>=TaxIncluded(A1)</code> or <code>=ExtractNumbers(B2)</code> — just like VLOOKUP or SUM!</div>
+</div>
+
+<!-- S8 Calling Procedures -->
+<div class="slide">
+  <h2>Calling Procedures from Other Procedures</h2>
+  <div class="code-block"><span class="kw">Option Explicit</span>
+
+<span class="com">' ── HELPER FUNCTIONS ───────────────────────</span>
+<span class="kw">Private Function</span> <span class="func">IsDataValid</span>(<span class="kw">ByVal</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>) <span class="kw">As</span> <span class="type">Boolean</span>
+    IsDataValid = ws.Cells(<span class="num">1</span>, <span class="num">1</span>) <> <span class="str">""</span>
+<span class="kw">End Function</span>
+
+<span class="kw">Private Sub</span> <span class="func">FormatReport</span>(<span class="kw">ByVal</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>)
+    <span class="kw">With</span> ws.Range(<span class="str">"A1:Z1"</span>)
+        .Font.Bold = <span class="kw">True</span>
+        .Interior.Color = <span class="num">RGB(21, 101, 192)</span>
+        .Font.Color = <span class="num">RGB(255,255,255)</span>
+    <span class="kw">End With</span>
+<span class="kw">End Sub</span>
+
+<span class="com">' ── MAIN PROCEDURE ─────────────────────────</span>
+<span class="kw">Public Sub</span> <span class="func">GenerateMonthlyReport</span>()
+    <span class="kw">Dim</span> ws <span class="kw">As</span> <span class="type">Worksheet</span>
+    <span class="kw">Set</span> ws = ThisWorkbook.Worksheets(<span class="str">"Data"</span>)
+    
+    <span class="kw">If Not</span> <span class="func">IsDataValid</span>(ws) <span class="kw">Then</span>
+        <span class="func">MsgBox</span> <span class="str">"No data found!"</span>: <span class="kw">Exit Sub</span>
+    <span class="kw">End If</span>
+    
+    <span class="func">FormatReport</span> ws
+    <span class="func">MsgBox</span> <span class="str">"Report generated!"</span>
+<span class="kw">End Sub</span></div>
+</div>
+
+<!-- S9 Quiz -->
+<div class="slide">
+  <h2>🎯 Module 5 Quiz</h2>
+  <div class="quiz-q">Q1: Which procedure type returns a value?</div>
+  <div id="q1opts">
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Function returns a value; Sub does not.')">Sub</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,true,'Correct! Function procedures return a value using FunctionName = result.')">Function</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Private is a scope modifier, not a procedure type.')">Private</div>
+    <div class="quiz-opt" onclick="checkQ('q1opts',this,false,'Module is where code lives, not a procedure type.')">Module</div>
+  </div>
+  <div id="q1fb"></div><br>
+  <div class="quiz-q">Q2: What does ByVal mean when passing a parameter?</div>
+  <div id="q2opts">
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'ByVal passes a COPY — the original is not changed.')">The original variable can be modified inside the Sub</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,true,'Correct! ByVal passes a copy, so changes inside the Sub do NOT affect the original variable.')">A copy of the value is passed — the original is safe</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'ByVal passes a COPY — the original is not changed.')">The variable is declared inside the function</div>
+    <div class="quiz-opt" onclick="checkQ('q2opts',this,false,'ByVal passes a COPY — the original is not changed.')">The parameter becomes a constant</div>
+  </div>
+  <div id="q2fb"></div>
+</div>
+
+<!-- S10 Summary -->
+<div class="slide title-slide">
+  <div class="big-icon">🎉</div>
+  <h1>Module 5 <span>Complete!</span></h1>
+  <div class="card" style="text-align:left;max-width:500px;margin-top:20px;">
+    <h3>📋 Key Takeaways</h3>
+    <ul class="bullets">
+      <li><b>Sub</b> = performs actions, no return value</li>
+      <li><b>Function</b> = calculates and returns a value</li>
+      <li><b>ByVal</b> = safe copy; <b>ByRef</b> = modifies original</li>
+      <li><b>Optional</b> parameters with defaults make flexible procedures</li>
+      <li><b>Private</b> vs <b>Public</b> controls visibility</li>
+      <li>UDFs can be used directly in Excel cell formulas!</li>
+    </ul>
+  </div>
+  <p style="margin-top:16px;color:var(--muted);">Next: <b>Module 06 – Excel Object Model</b></p>
+</div>
+
+</div>
+<div class="footer">
+  <button class="nav-btn" id="prevBtn" onclick="prev()" disabled>◀ Previous</button>
+  <a class="nav-btn" href="../index.html" style="text-decoration:none;">🏠 Home</a>
+  <span class="hint">← → Arrow Keys</span>
+  <button class="nav-btn" id="nextBtn" onclick="next()">Next ▶</button>
+</div>
+</div>
+<div id="np">
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><b style="color:var(--accent);">📝 Notes – M05</b><button class="btn btn-g" style="padding:2px 8px;" onclick="toggleNotes()">✕</button></div>
+  <textarea id="na" placeholder="Notes..."></textarea>
+  <button class="btn btn-a" style="width:100%;margin-top:6px;" onclick="saveNotes()">💾 Save</button>
+</div>
+<script>
+const slides=[...document.querySelectorAll('.slide')];let cur=0;const total=slides.length;
+document.getElementById('tn').textContent=total;
+function show(n){slides[cur].classList.remove('active');cur=Math.max(0,Math.min(n,total-1));slides[cur].classList.add('active');document.getElementById('cn').textContent=cur+1;document.getElementById('pf').style.width=((cur+1)/total*100)+'%';document.getElementById('prevBtn').disabled=cur===0;const nb=document.getElementById('nextBtn');if(cur===total-1){nb.textContent='✓ Complete';nb.classList.add('done');}else{nb.textContent='Next ▶';nb.classList.remove('done');}}
+function next(){if(cur===total-1){window.location.href='../index.html#modules';}else{show(cur+1);}}function prev(){show(cur-1);}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' ')next();if(e.key==='ArrowLeft')prev();});
+function checkQ(id,el,ok,msg){document.querySelectorAll('#'+id+' .quiz-opt').forEach(o=>o.style.pointerEvents='none');el.classList.add(ok?'correct':'wrong');const fb=document.getElementById(id.replace('opts','fb'));fb.innerHTML=`<div class="feedback ${ok?'ok':'bad'}">${ok?'✅':'❌'} ${msg}</div>`;}
+function toggleNotes(){document.getElementById('np').classList.toggle('show');}
+function saveNotes(){localStorage.setItem('vba_notes_05',document.getElementById('na').value);alert('Saved!');}
+document.getElementById('na').value=localStorage.getItem('vba_notes_05')||'';
+</script>
+</body>
+</html>
